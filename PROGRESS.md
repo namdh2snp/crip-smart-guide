@@ -1,7 +1,7 @@
 # Tiến độ Dự án: CRIP Smart Guide
 
 **Cẩm nang Thông minh Cảng Quốc tế Cam Ranh (Cam Ranh International Port - Smart Guide)**  
-Cập nhật lần cuối: `2026-11-25` | Trạng thái tổng thể: **Hoàn thành 30/30 tác vụ (Phase 1 – Phase 5) • Đã nâng cấp lưu trữ Supabase Cloud + Realtime đa thiết bị**
+Cập nhật lần cuối: `2026-11-25` | Trạng thái tổng thể: **Hoàn thành 30/30 tác vụ (Phase 1 – Phase 5) • Đã nâng cấp Supabase Cloud + Realtime đa thiết bị, giao diện Hành khách theo Tab & sẵn sàng Deploy Vercel**
 
 ---
 
@@ -35,17 +35,15 @@ Cập nhật lần cuối: `2026-11-25` | Trạng thái tổng thể: **Hoàn th
 
 ### A. Giao diện Hành khách (`/`)
 - **Thanh Header cố định (`Header.jsx`)**: Logo Cảng Quốc tế Cam Ranh, nút chuyển nhanh 4 ngôn ngữ (`VI`, `EN`, `ZH`, `KR`), nút truy cập khẩn cấp **SOS** 1 chạm.
-- **Thẻ trạng thái chuyến tàu (`ShipStatusCard.jsx`)**: Hiển thị tên tàu, cầu bến, thời tiết Cam Ranh, đồng hồ đếm ngược thời gian thực đến giờ **All Aboard**, cảnh báo quá giờ và nút *"Nhắc tôi trước 60 phút"*.
-- **Wi-Fi nhà ga 1 chạm (`WifiBanner.jsx`)**: Hiển thị SSID/mật khẩu Wi-Fi miễn phí và sao chép nhanh vào clipboard.
-- **Phân luồng di chuyển (`LogisticsFlow.jsx`)**:
-  - Tab **Đi theo Tour hãng tàu**: Hướng dẫn khu vực tập kết và bãi đỗ xe bus đoàn.
-  - Tab **Đi tự túc**: Lịch trình xe Shuttle miễn phí ra cổng cảng và bảng cước Taxi niêm yết chính hãng kèm hotline.
-- **Bản đồ nhà ga tương tác (`TerminalMap.jsx`)**: Hiển thị sơ đồ thực tế `/crip-map.png`, bộ lọc điểm tiện ích POI (ATM/Đổi tiền, SIM 4G, Y tế, Miễn thuế, WC, Shuttle Bus) và thẻ thông tin chi tiết khi chạm vào từng điểm.
-- **Lịch trình khám phá (`ItineraryList.jsx`)**: Gợi ý tour tự túc theo 3 mốc thời gian **4 Giờ / 6 Giờ / 8 Giờ** tại Cam Ranh – Nha Trang kèm mốc giờ an toàn bắt buộc quay về cảng.
-- **Thẻ giao tiếp bản địa (`PhraseCards.jsx`)**: Các câu tiếng Việt khổ lớn kèm phiên âm quốc tế, bản dịch EN/ZH/KR và phát âm mẫu tiếng Việt qua **Web Speech API** (`src/utils/speech.js`).
-- **Máy tính đổi tiền ngoại tuyến (`CurrencyCalc.jsx`)**: Quy đổi 2 chiều không cần mạng giữa `VND` và `USD`, `CNY`, `KRW` (`src/utils/currency.js`).
-- **Khảo sát trải nghiệm 30 giây (`FeedbackForm.jsx`)**: Đánh giá nhanh bằng biểu tượng cảm xúc theo 3 tiêu chí, góp ý ngắn và lưu cục bộ.
-- **Thanh dock đáy & Modal khẩn cấp (`BottomBar.jsx`, `EmergencyModal.jsx`)**: Thẻ toàn màn hình khổ lớn *"LÀM ƠN ĐƯA TÔI VỀ CẢNG QUỐC TẾ CAM RANH"* kèm địa chỉ/chỉ dẫn cho tài xế và danh bạ hotline SOS.
+- **Thanh điều hướng Tab cố định (`PassengerTabs.jsx`)**: Ghim ngay dưới Header (`sticky top-16`), cuộn ngang mượt trên di động, tự căn giữa tab đang chọn, hỗ trợ 4 ngôn ngữ (`navShip`–`navFeedback`) với 7 Tab chức năng độc lập; biểu ngữ cảnh báo khẩn cấp (khi bật từ Admin) hiển thị xuyên suốt trên mọi Tab:
+  1. **Tàu & Wi-Fi** (`ShipStatusCard.jsx` + `WifiBanner.jsx`): Trạng thái tàu, cầu bến, thời tiết Cam Ranh, đếm ngược **All Aboard**, nhắc trước 60 phút và sao chép mật khẩu Wi-Fi 1 chạm.
+  2. **Di chuyển** (`LogisticsFlow.jsx`): Tab **Đi theo Tour hãng tàu** (bãi đỗ xe bus đoàn) và Tab **Đi tự túc** (lịch xe Shuttle miễn phí & bảng cước Taxi niêm yết kèm hotline).
+  3. **Bản đồ** (`TerminalMap.jsx`): Sơ đồ thực tế `/crip-map.png`, bộ lọc điểm tiện ích POI (ATM/Đổi tiền, SIM 4G, Y tế, Miễn thuế, WC, Shuttle Bus) và thẻ chi tiết khi chạm.
+  4. **Lịch trình** (`ItineraryList.jsx`): Gợi ý tour tự túc **4 Giờ / 6 Giờ / 8 Giờ** tại Cam Ranh – Nha Trang kèm mốc giờ an toàn bắt buộc quay về cảng.
+  5. **Thẻ nói** (`PhraseCards.jsx`): Các câu tiếng Việt khổ lớn kèm phiên âm quốc tế, bản dịch EN/ZH/KR và phát âm mẫu qua **Web Speech API** (`src/utils/speech.js`).
+  6. **Đổi tiền** (`CurrencyCalc.jsx`): Quy đổi 2 chiều ngoại tuyến giữa `VND` và `USD`, `CNY`, `KRW` (`src/utils/currency.js`).
+  7. **Khảo sát** (`FeedbackForm.jsx`): Đánh giá nhanh 30 giây bằng biểu tượng cảm xúc theo 3 tiêu chí, góp ý ngắn và lưu cục bộ.
+- **Thanh dock đáy & Modal khẩn cấp (`BottomBar.jsx`, `EmergencyModal.jsx`)**: Luôn cố định trên mọi Tab với nút kích hoạt thẻ toàn màn hình *"LÀM ƠN ĐƯA TÔI VỀ CẢNG QUỐC TẾ CAM RANH"* và danh bạ hotline SOS.
 
 ### B. Giao diện Quản trị Toàn phần (`/admin`)
 - **Tab 1 (`Tab1Ship.jsx`)**: Cập nhật tên tàu, cầu bến, thời tiết, giờ cập/All Aboard/rời cảng, Wi-Fi và công tắc biểu ngữ cảnh báo khẩn cấp.
@@ -104,18 +102,19 @@ CRIP-Smart-Guide/
 │   ├── data/
 │   │   └── defaultConfig.js       # Hạt giống dữ liệu gốc 100% CMS
 │   ├── utils/
-│   │   ├── storage.js             # LocalStorage adapter, realtime sync, JSON import/export
+│   │   ├── storage.js             # Supabase (app_config) + Realtime + LocalStorage fallback & JSON I/O
 │   │   ├── speech.js              # Phát âm tiếng Việt (Web Speech API)
 │   │   └── currency.js            # Quy đổi tiền tệ ngoại tuyến
 │   ├── pages/
-│   │   ├── PassengerPage.jsx      # Giao diện Hành khách (/)
-│   │   └── AdminPage.jsx          # Giao diện Quản trị (/admin)
+│   │   ├── PassengerPage.jsx      # Giao diện Hành khách (/) hiển thị theo 7 Tab chức năng
+│   │   └── AdminPage.jsx          # Giao diện Quản trị (/admin) kèm trạng thái Supabase Realtime
 │   └── components/
 │       ├── common/                # Header, BottomBar, EmergencyModal
-│       ├── passenger/             # ShipStatusCard, WifiBanner, LogisticsFlow, TerminalMap,
-│       │                          # ItineraryList, PhraseCards, CurrencyCalc, FeedbackForm
+│       ├── passenger/             # PassengerTabs, ShipStatusCard, WifiBanner, LogisticsFlow,
+│       │                          # TerminalMap, ItineraryList, PhraseCards, CurrencyCalc, FeedbackForm
 │       └── admin/                 # AdminTabs, Tab1Ship .. Tab8DataOps
 ├── crip-config.json               # Tệp cấu hình JSON sao lưu mẫu
+├── vercel.json                    # Cấu hình SPA rewrite (/(.*) -> /index.html) cho Vercel
 ├── index.html
 ├── package.json
 ├── vite.config.js
@@ -143,3 +142,18 @@ npm run preview
 ```
 
 > Lưu ý trên Windows PowerShell: nếu gặp lỗi ExecutionPolicy khi chạy `npm`, dùng `npm.cmd run dev` hoặc chạy một lần `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`.
+
+---
+
+## 6. Nhật ký Cập nhật (Changelog)
+
+### 2026-11-25
+- **Thiết lập môi trường máy mới & GitHub (`02c8ac3`)**: Cài đặt Node.js LTS v26.13.1, kiểm thử `npm run build` & Vite dev server, khởi tạo Git nhánh `main`, tạo `PROGRESS.md` và đẩy toàn bộ dự án (kèm `.specify/`, `specs/`) lên `https://github.com/namdh2snp/crip-smart-guide`.
+- **Nâng cấp lưu trữ Supabase Cloud & Realtime (`a719a1c`)**:
+  - Cài `@supabase/supabase-js` và kết nối bảng `public.app_config` (`id = 1`, cột `data`).
+  - Tự động đọc từ Supabase khi mở `/` hoặc `/admin`; tự khởi tạo dữ liệu mẫu từ `crip-config.json` + `defaultConfig.js` nếu bảng đang trống.
+  - Ghi trực tiếp lên `app_config (id = 1)` khi lưu ở `/admin`, bật Supabase Realtime (`SUBSCRIBED`) đồng bộ tức thời sang mọi thiết bị mở `/`, đồng bộ state 8 tab Admin, thêm thanh trạng thái Cloud/Realtime trên `AdminPage.jsx`, và giữ `LocalStorage` + `sw.js` hoạt động ngoại tuyến.
+- **Cấu hình Deploy Vercel (`692dddf`)**: Thêm `vercel.json` cấu hình rewrite mọi đường dẫn về `/index.html` để tránh lỗi 404 khi truy cập trực tiếp `/admin`.
+- **Tái cấu trúc giao diện Hành khách theo Tab (`00ddbdf`)**:
+  - Tạo thanh Tab cố định `PassengerTabs.jsx` chia 7 chức năng độc lập (*Tàu & Wi-Fi*, *Di chuyển*, *Bản đồ*, *Lịch trình*, *Thẻ nói*, *Đổi tiền*, *Khảo sát*).
+  - Bổ sung 7 khóa từ điển 4 ngôn ngữ (`navShip`–`navFeedback`) trong `defaultConfig.js`, hiển thị cảnh báo khẩn cấp xuyên suốt mọi Tab và push lên GitHub để Vercel tự động triển khai.
