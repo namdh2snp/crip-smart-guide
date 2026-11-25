@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import AdminTabs from '../components/admin/AdminTabs';
+import AdminPinGate from '../components/admin/AdminPinGate';
 import Tab1Ship from '../components/admin/Tab1Ship';
 import Tab2Logistics from '../components/admin/Tab2Logistics';
 import Tab3MapPoi from '../components/admin/Tab3MapPoi';
@@ -9,47 +10,111 @@ import Tab5Phrases from '../components/admin/Tab5Phrases';
 import Tab6Emergency from '../components/admin/Tab6Emergency';
 import Tab7Dictionary from '../components/admin/Tab7Dictionary';
 import Tab8DataOps from '../components/admin/Tab8DataOps';
-import { ArrowLeft, ShieldCheck, Cloud, CloudOff, AlertTriangle, Loader2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  ShieldCheck,
+  Cloud,
+  CloudOff,
+  AlertTriangle,
+  Loader2,
+  Lock,
+} from 'lucide-react';
 import { useConfig } from '../context/ConfigContext';
+import {
+  getEffectivePinHash,
+  getEffectivePinLength,
+  isAdminSessionValid,
+  clearAdminSession,
+} from '../utils/adminAuth';
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('ship');
-  const { syncStatus, realtimeStatus, syncError } = useConfig();
+  const { config, syncStatus, realtimeStatus, syncError } = useConfig();
+
+  const expectedPinHash = getEffectivePinHash(config);
+  const pinLength = getEffectivePinLength(config);
+
+  const [isUnlocked, setIsUnlocked] = useState(() => isAdminSessionValid(expectedPinHash));
+
+  // Re-validate session when PIN hash updates (e.g., via Supabase Realtime from another device)
+  // or when the 8-hour TTL expires while the tab stays open.
+  useEffect(() => {
+    const checkSession = () => {
+      setIsUnlocked(isAdminSessionValid(expectedPinHash));
+    };
+
+    checkSession();
+    const interval = setInterval(checkSession, 30 * 1000);
+    window.addEventListener('focus', checkSession);
+    window.addEventListener('storage', checkSession);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', checkSession);
+      window.removeEventListener('storage', checkSession);
+    };
+  }, [expectedPinHash]);
+
+  const handleLock = useCallback(() => {
+    clearAdminSession();
+    setIsUnlocked(false);
+  }, []);
+
+  if (!isUnlocked) {
+    return (
+      <AdminPinGate
+        expectedPinHash={expectedPinHash}
+        pinLength={pinLength}
+        onUnlock={() => setIsUnlocked(true)}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-surface pb-16">
       {/* Admin Top Header */}
       <header className="bg-navy text-white px-4 py-3 border-b border-navy-light sticky top-0 z-30 shadow-md">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center space-x-3 min-w-0">
             <Link
               to="/"
-              className="p-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-white transition-all flex items-center space-x-1"
+              className="p-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-white transition-all flex items-center space-x-1 shrink-0"
               title="Quay lại Giao diện Hành khách"
             >
               <ArrowLeft className="w-5 h-5 text-teal" />
               <span className="text-xs font-bold hidden sm:inline">Về App Khách</span>
             </Link>
-            <div className="flex items-center space-x-2">
-              <ShieldCheck className="w-6 h-6 text-teal" />
-              <div>
-                <h1 className="text-sm sm:text-base font-black tracking-tight text-white leading-tight">
+            <div className="flex items-center space-x-2 min-w-0">
+              <ShieldCheck className="w-6 h-6 text-teal shrink-0" />
+              <div className="min-w-0">
+                <h1 className="text-sm sm:text-base font-black tracking-tight text-white leading-tight truncate">
                   TRUNG TÂM QUẢN TRỊ NỘI DUNG CRIP
                 </h1>
-                <p className="text-[10px] text-teal-light font-medium">
+                <p className="text-[10px] text-teal-light font-medium truncate">
                   Cảng Quốc tế Cam Ranh • 100% CMS-Driven Realtime Control
                 </p>
               </div>
             </div>
           </div>
 
-          <Link
-            to="/"
-            target="_blank"
-            className="text-xs font-black bg-teal hover:bg-teal-dark text-white px-3 py-1.5 rounded-xl shadow transition-all"
-          >
-            Mở Tab Khách (Live Preview)
-          </Link>
+          <div className="flex items-center space-x-2 shrink-0">
+            <Link
+              to="/"
+              target="_blank"
+              className="text-xs font-black bg-teal hover:bg-teal-dark text-white px-3 py-1.5 rounded-xl shadow transition-all hidden sm:inline-flex items-center"
+            >
+              Mở Tab Khách (Live Preview)
+            </Link>
+            <button
+              type="button"
+              onClick={handleLock}
+              className="text-xs font-black bg-white/10 hover:bg-sos text-white px-3 py-1.5 rounded-xl border border-white/15 hover:border-sos transition-all flex items-center space-x-1.5"
+              title="Khóa ngay phiên quản trị (yêu cầu nhập lại mã PIN)"
+            >
+              <Lock className="w-4 h-4 text-teal-light" />
+              <span>Khóa nhanh</span>
+            </button>
+          </div>
         </div>
       </header>
 

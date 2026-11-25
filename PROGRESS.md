@@ -47,6 +47,7 @@ Cập nhật lần cuối: `2026-11-25` | Trạng thái tổng thể: **Hoàn th
 - **Thanh dock đáy & Modal khẩn cấp (`BottomBar.jsx`, `EmergencyModal.jsx`)**: Luôn cố định trên mọi Tab với nút kích hoạt thẻ toàn màn hình *"LÀM ƠN ĐƯA TÔI VỀ CẢNG QUỐC TẾ CAM RANH"* và danh bạ hotline SOS.
 
 ### B. Giao diện Quản trị Toàn phần (`/admin`)
+- **Xác thực Mã PIN Quản trị (`AdminPinGate.jsx`, `src/utils/adminAuth.js`)**: Khóa truy cập `/admin` bằng mã PIN (băm SHA-256 có salt, không lưu plaintext), hỗ trợ bàn phím số cảm ứng & bàn phím vật lý, ghi nhớ phiên **8 giờ** trên thiết bị (`LocalStorage`, tự thu hồi khi đổi PIN từ thiết bị khác qua Supabase Realtime), nút **Khóa nhanh** trên Header và cơ chế **tạm khóa 30 giây khi nhập sai 5 lần liên tiếp**.
 - **Tab 1 (`Tab1Ship.jsx`)**: Cập nhật tên tàu, cầu bến, thời tiết, giờ cập/All Aboard/rời cảng, Wi-Fi và công tắc biểu ngữ cảnh báo khẩn cấp.
 - **Tab 2 (`Tab2Logistics.jsx`)**: Quản lý hướng dẫn xe bus đoàn, lịch chạy xe Shuttle và thêm/sửa/xóa bảng giá hãng Taxi.
 - **Tab 3 (`Tab3MapPoi.jsx`)**: Quản lý điểm tiện ích POI với cơ chế **click trực tiếp lên ảnh bản đồ `/crip-map.png`** để tự động gán tọa độ `X%`, `Y%` và chọn danh mục/icon.
@@ -54,7 +55,7 @@ Cập nhật lần cuối: `2026-11-25` | Trạng thái tổng thể: **Hoàn th
 - **Tab 5 (`Tab5Phrases.jsx`)**: Quản lý bộ thẻ giao tiếp tiếng Việt và cập nhật tỷ giá hối đoái (`USD`, `CNY`, `KRW`).
 - **Tab 6 (`Tab6Emergency.jsx`)**: Quản lý (thêm/sửa/xóa) bảng hotline cứu hộ SOS 24/7 và nội dung thẻ *"Đưa tôi về Cảng"*.
 - **Tab 7 (`Tab7Dictionary.jsx`)**: Biên tập từ điển giao diện đa ngôn ngữ (key–value cho `VI`, `EN`, `ZH`, `KR`).
-- **Tab 8 (`Tab8DataOps.jsx`)**: Tiếp nhận và xử lý **Báo cáo An toàn hiện trường (Ảnh + GPS)** đồng bộ Realtime từ Supabase (phóng to ảnh, mở Google Maps, chuyển trạng thái *Mới / Đang xử lý / Đã xử lý*, huy hiệu đếm trên `AdminTabs.jsx`); xem phản hồi khảo sát, **Xuất/Nhập file JSON** và **Khôi phục mặc định**.
+- **Tab 8 (`Tab8DataOps.jsx`)**: Tiếp nhận và xử lý **Báo cáo An toàn hiện trường (Ảnh + GPS)** đồng bộ Realtime từ Supabase (phóng to ảnh, mở Google Maps, chuyển trạng thái *Mới / Đang xử lý / Đã xử lý*, huy hiệu đếm trên `AdminTabs.jsx`); **Đổi mã PIN quản trị** (4–8 chữ số, đồng bộ Supabase Cloud); xem phản hồi khảo sát, **Xuất/Nhập file JSON** và **Khôi phục mặc định**.
 
 ### C. Supabase Cloud, Realtime Đa thiết bị & PWA Ngoại tuyến
 - **Lưu trữ tập trung Supabase (`@supabase/supabase-js`)**: Kết nối bảng `public.app_config` (dòng `id = 1`, cột `data`) tại `src/utils/storage.js`.
@@ -162,7 +163,11 @@ npm run preview
   - Xây dựng `SafetySosPanel.jsx` tích hợp Tab thứ 8 (**An toàn & SOS**): Bảng gọi SOS 24/7 1 chạm (`113`/`114`/`115`, hotline cảng từ CMS, nút thẻ hồi cảng) và biểu mẫu báo cáo an toàn kèm chụp ảnh camera/thư viện (tự nén Canvas), định vị GPS tự động (kèm link Google Maps), phân loại sự cố & mức độ khẩn cấp đa ngôn ngữ VI/EN/ZH/KR.
   - Bổ sung API `submitSafetyReport`, `updateSafetyReportStatus`, `deleteSafetyReport` đồng bộ Realtime qua Supabase `app_config (id = 1)` (có cơ chế dự phòng chống tràn bộ nhớ `LocalStorage`).
   - Nâng cấp `/admin`: thêm bảng quản lý Báo cáo An toàn (phóng to ảnh, mở Google Maps, đổi trạng thái xử lý) ở `Tab8DataOps.jsx`, thêm huy hiệu số báo cáo mới trên `AdminTabs.jsx`, thêm chức năng thêm/xóa Hotline ở `Tab6Emergency.jsx`, và sửa lỗi thiếu import `ShieldAlert` trong `EmergencyModal.jsx`.
-- **Hoàn thiện chuyển đổi sang Dự án Remote-Synced đa máy**:
+- **Hoàn thiện chuyển đổi sang Dự án Remote-Synced đa máy (`9a4de2c`)**:
   - Chuyển nốt dữ liệu **Khảo sát hành khách (`feedbacks`)** từ `LocalStorage` cục bộ lên đồng bộ **Supabase Cloud + Realtime** (`app_config id = 1`), bảo đảm 100% dữ liệu (Cấu hình + Báo cáo An toàn + Khảo sát) đồng bộ mọi máy.
   - Cập nhật Hiến pháp dự án `.specify/memory/constitution.md` lên **v1.1.0** phản ánh kiến trúc Remote-Synced (GitHub + Supabase + Vercel + Offline PWA).
   - Bổ sung `README.md` và `.env.example` hướng dẫn quy trình `git clone` / `git pull` / `git push` để làm việc liền mạch trên nhiều máy tính.
+- **Cài đặt Mã PIN truy cập hệ thống quản trị (`/admin`)**:
+  - Xây dựng tầng xác thực `src/utils/adminAuth.js` (băm SHA-256 có salt kèm fallback thuần JS cho mạng LAN/HTTP, không lưu plaintext PIN) và màn hình khóa `src/components/admin/AdminPinGate.jsx` (bàn phím số cảm ứng + hỗ trợ gõ phím vật lý).
+  - Ghi nhớ phiên quản trị **8 giờ** trên thiết bị (`LocalStorage`), tự động thu hồi phiên trên các thiết bị khác khi đổi PIN qua Supabase Realtime, tích hợp nút **Khóa nhanh** trên Header của `AdminPage.jsx`, và khóa tạm **30 giây** khi nhập sai **5 lần liên tiếp**.
+  - Bổ sung mục **8.2 Bảo mật & Đổi mã PIN quản trị** trong `Tab8DataOps.jsx` (cho phép đổi PIN 4–8 chữ số đồng bộ Supabase Cloud) và giữ nguyên mã PIN khi khôi phục dữ liệu mặc định hoặc nhập file backup cũ.

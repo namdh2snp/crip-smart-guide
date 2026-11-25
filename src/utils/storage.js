@@ -71,6 +71,10 @@ export function mergeWithDefault(parsed) {
     },
     currencyRates: { ...defaultConfig.currencyRates, ...(parsed.currencyRates || {}) },
     returnPortCard: { ...defaultConfig.returnPortCard, ...(parsed.returnPortCard || {}) },
+    adminAuth: {
+      ...defaultConfig.adminAuth,
+      ...(parsed.adminAuth || {}),
+    },
     safetyReports: Array.isArray(parsed.safetyReports) ? parsed.safetyReports : [],
     feedbacks: Array.isArray(parsed.feedbacks) ? parsed.feedbacks : [],
     dictionary: { ...defaultConfig.dictionary, ...(parsed.dictionary || {}) },
@@ -293,7 +297,11 @@ export async function saveConfig(newConfig) {
  * Reset configuration to default seed (defaultConfig.js) and sync to Supabase app_config (id = 1)
  */
 export async function resetConfig() {
-  const freshDefault = mergeWithDefault(defaultConfig);
+  const current = getConfig();
+  const freshDefault = mergeWithDefault({
+    ...defaultConfig,
+    adminAuth: current?.adminAuth || defaultConfig.adminAuth,
+  });
   persistLocalCache(freshDefault, true);
   await upsertConfigToSupabase(freshDefault);
   return freshDefault;
@@ -501,7 +509,14 @@ export async function importConfig(jsonString) {
     if (!parsed || typeof parsed !== 'object') {
       throw new Error('Invalid JSON structure');
     }
-    const res = await saveConfig(parsed);
+    const current = getConfig();
+    const nextConfig = {
+      ...parsed,
+      adminAuth: parsed.adminAuth?.pinHash
+        ? parsed.adminAuth
+        : current?.adminAuth || defaultConfig.adminAuth,
+    };
+    const res = await saveConfig(nextConfig);
     return { success: true, remoteSynced: res.ok, error: res.error };
   } catch (err) {
     return { success: false, error: err.message };

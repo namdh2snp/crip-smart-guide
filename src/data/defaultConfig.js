@@ -5,6 +5,13 @@
  */
 
 export const defaultConfig = {
+  // 0. Admin Access Security (Salted SHA-256 hash — never stores plaintext PIN)
+  adminAuth: {
+    pinHash: "447950ae60c62c60e0139896d79d13768545c3013723e56cbbea9bab1b2bab94",
+    pinLength: 6,
+    updatedAt: null
+  },
+
   // 1. Ship & Voyage Status
   ship: {
     name: "Spectrum of the Seas",

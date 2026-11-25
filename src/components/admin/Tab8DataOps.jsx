@@ -8,6 +8,13 @@ import {
   deleteSafetyReport
 } from '../../utils/storage';
 import {
+  getEffectivePinHash,
+  hashAdminPin,
+  verifyAdminPin,
+  isValidPinFormat,
+  saveAdminSession
+} from '../../utils/adminAuth';
+import {
   Download,
   Upload,
   RotateCcw,
@@ -17,7 +24,11 @@ import {
   ExternalLink,
   Trash2,
   X,
-  User
+  User,
+  KeyRound,
+  Eye,
+  EyeOff,
+  CheckCircle2
 } from 'lucide-react';
 
 const CATEGORY_LABELS = {
@@ -35,16 +46,89 @@ const STATUS_META = {
 };
 
 export default function Tab8DataOps() {
-  const { config, resetConfig } = useConfig();
+  const { config, updateConfig, resetConfig } = useConfig();
   const [feedbacks, setFeedbacks] = useState([]);
   const [importStatus, setImportStatus] = useState('');
   const [previewPhoto, setPreviewPhoto] = useState(null);
+
+  // Admin PIN change state
+  const [currentPin, setCurrentPin] = useState('');
+  const [newPin, setNewPin] = useState('');
+  const [confirmPin, setConfirmPin] = useState('');
+  const [showPins, setShowPins] = useState(false);
+  const [pinSaving, setPinSaving] = useState(false);
+  const [pinFeedback, setPinFeedback] = useState(null); // { type: 'success' | 'error', text: string }
 
   const safetyReports = config.safetyReports || [];
 
   useEffect(() => {
     setFeedbacks(getFeedbacks());
   }, [config]);
+
+  const handleChangePin = async (e) => {
+    e.preventDefault();
+    setPinFeedback(null);
+
+    if (!currentPin.trim()) {
+      setPinFeedback({ type: 'error', text: 'Vui lòng nhập mã PIN hiện tại.' });
+      return;
+    }
+
+    const expectedHash = getEffectivePinHash(config);
+    const validCurrent = await verifyAdminPin(currentPin, expectedHash);
+    if (!validCurrent) {
+      setPinFeedback({ type: 'error', text: 'Mã PIN hiện tại không chính xác.' });
+      return;
+    }
+
+    if (!isValidPinFormat(newPin)) {
+      setPinFeedback({
+        type: 'error',
+        text: 'Mã PIN mới phải gồm từ 4 đến 8 chữ số (0–9).'
+      });
+      return;
+    }
+
+    if (newPin !== confirmPin) {
+      setPinFeedback({ type: 'error', text: 'Xác nhận mã PIN mới không khớp.' });
+      return;
+    }
+
+    if (newPin === currentPin) {
+      setPinFeedback({ type: 'error', text: 'Mã PIN mới phải khác mã PIN hiện tại.' });
+      return;
+    }
+
+    setPinSaving(true);
+    try {
+      const nextHash = await hashAdminPin(newPin);
+      // Save refreshed session BEFORE updating config so the current device stays unlocked
+      // while all other devices holding the old pinHash are automatically locked out.
+      saveAdminSession(nextHash);
+
+      const res = await updateConfig({
+        ...config,
+        adminAuth: {
+          pinHash: nextHash,
+          pinLength: newPin.length,
+          updatedAt: new Date().toISOString()
+        }
+      });
+
+      setCurrentPin('');
+      setNewPin('');
+      setConfirmPin('');
+
+      setPinFeedback({
+        type: 'success',
+        text: res.ok
+          ? 'Đã đổi mã PIN thành công và đồng bộ lên Supabase Cloud! Các thiết bị khác sẽ yêu cầu nhập mã PIN mới.'
+          : 'Đã đổi mã PIN cục bộ (chưa đồng bộ được lên Supabase Cloud).'
+      });
+    } finally {
+      setPinSaving(false);
+    }
+  };
 
   const handleExport = () => {
     const jsonStr = exportConfig();
@@ -82,7 +166,7 @@ export default function Tab8DataOps() {
   };
 
   const handleResetDefault = async () => {
-    if (window.confirm('Bạn có chắc chắn muốn khôi phục toàn bộ cấu hình về mặc định ban đầu của Cảng? Mọi chỉnh sửa sẽ bị xóa.')) {
+    if (window.confirm('Bạn có chắc chắn muốn khôi phục toàn bộ cấu hình về mặc định ban đầu của Cảng? Mọi chỉnh sửa nội dung sẽ bị xóa (mã PIN quản trị vẫn được giữ nguyên).')) {
       await resetConfig();
       alert('Đã khôi phục cấu hình mặc định thành công!');
     }
@@ -247,10 +331,116 @@ export default function Tab8DataOps() {
         )}
       </div>
 
-      {/* 2. Backup & Restore Operations */}
+      {/* 2. Admin PIN Security */}
+      <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="font-black text-sm text-navy uppercase tracking-wider flex items-center space-x-1.5">
+            <KeyRound className="w-4 h-4 text-teal" />
+            <span>8.2 BẢO MẬT & ĐỔI MÃ PIN QUẢN TRỊ</span>
+          </h3>
+          {config.adminAuth?.updatedAt && (
+            <span className="text-[11px] font-semibold text-slate-500">
+              Cập nhật lần cuối: {new Date(config.adminAuth.updatedAt).toLocaleString('vi-VN')}
+            </span>
+          )}
+        </div>
+
+        <p className="text-xs text-slate-600 leading-relaxed">
+          Mã PIN được mã hóa một chiều (SHA-256) và đồng bộ qua Supabase Cloud. Khi đổi mã PIN mới, phiên đăng nhập trên các thiết bị khác sẽ tự động khóa để bảo vệ hệ thống.
+        </p>
+
+        <form onSubmit={handleChangePin} className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Mã PIN hiện tại
+              </label>
+              <input
+                type={showPins ? 'text' : 'password'}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={8}
+                value={currentPin}
+                onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, ''))}
+                placeholder="Nhập PIN hiện tại"
+                className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm font-mono font-bold text-navy focus:outline-none focus:ring-2 focus:ring-teal"
+                autoComplete="current-password"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Mã PIN mới (4–8 chữ số)
+              </label>
+              <input
+                type={showPins ? 'text' : 'password'}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={8}
+                value={newPin}
+                onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ''))}
+                placeholder="VD: 6 chữ số"
+                className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm font-mono font-bold text-navy focus:outline-none focus:ring-2 focus:ring-teal"
+                autoComplete="new-password"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Xác nhận mã PIN mới
+              </label>
+              <input
+                type={showPins ? 'text' : 'password'}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={8}
+                value={confirmPin}
+                onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ''))}
+                placeholder="Nhập lại PIN mới"
+                className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm font-mono font-bold text-navy focus:outline-none focus:ring-2 focus:ring-teal"
+                autoComplete="new-password"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+            <button
+              type="button"
+              onClick={() => setShowPins((prev) => !prev)}
+              className="text-xs font-bold text-slate-600 hover:text-navy flex items-center space-x-1.5 px-2 py-1"
+            >
+              {showPins ? <EyeOff className="w-4 h-4 text-slate-500" /> : <Eye className="w-4 h-4 text-slate-500" />}
+              <span>{showPins ? 'Ẩn chữ số PIN' : 'Hiển thị chữ số PIN'}</span>
+            </button>
+
+            <button
+              type="submit"
+              disabled={pinSaving}
+              className="bg-navy hover:bg-navy-light text-white text-xs font-black px-5 py-2.5 rounded-xl shadow transition-all disabled:opacity-50"
+            >
+              {pinSaving ? 'Đang cập nhật...' : 'Cập nhật Mã PIN'}
+            </button>
+          </div>
+        </form>
+
+        {pinFeedback && (
+          <div
+            className={`p-3 rounded-xl border text-xs font-bold flex items-center space-x-2 ${
+              pinFeedback.type === 'success'
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                : 'bg-rose-50 border-rose-200 text-sos'
+            }`}
+          >
+            {pinFeedback.type === 'success' && <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />}
+            <span>{pinFeedback.text}</span>
+          </div>
+        )}
+      </div>
+
+      {/* 3. Backup & Restore Operations */}
       <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
         <h3 className="font-black text-sm text-navy uppercase tracking-wider">
-          8.2 SAO LƯU & KHÔI PHỤC CẤU HÌNH HỆ THỐNG
+          8.3 SAO LƯU & KHÔI PHỤC CẤU HÌNH HỆ THỐNG
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -295,12 +485,12 @@ export default function Tab8DataOps() {
         )}
       </div>
 
-      {/* 3. Customer Feedback Reviews */}
+      {/* 4. Customer Feedback Reviews */}
       <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="font-black text-sm text-navy uppercase tracking-wider flex items-center space-x-1.5">
             <MessageSquare className="w-4 h-4 text-teal" />
-            <span>8.3 DANH SÁCH PHẢN HỒI CỦA HÀNH KHÁCH ({feedbacks.length})</span>
+            <span>8.4 DANH SÁCH PHẢN HỒI CỦA HÀNH KHÁCH ({feedbacks.length})</span>
           </h3>
         </div>
 
