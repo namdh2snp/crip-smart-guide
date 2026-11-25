@@ -11,6 +11,7 @@ import ItineraryList from '../components/passenger/ItineraryList';
 import PhraseCards from '../components/passenger/PhraseCards';
 import CurrencyCalc from '../components/passenger/CurrencyCalc';
 import WifiBanner from '../components/passenger/WifiBanner';
+import SafetySosPanel from '../components/passenger/SafetySosPanel';
 import FeedbackForm from '../components/passenger/FeedbackForm';
 import { useLanguage } from '../context/LanguageContext';
 import { useConfig } from '../context/ConfigContext';
@@ -64,6 +65,9 @@ export default function PassengerPage() {
           {activeTab === 'itinerary' && <ItineraryList />}
           {activeTab === 'phrases' && <PhraseCards />}
           {activeTab === 'currency' && <CurrencyCalc />}
+          {activeTab === 'safety' && (
+            <SafetySosPanel onOpenEmergency={() => setEmergencyOpen(true)} />
+          )}
           {activeTab === 'feedback' && <FeedbackForm />}
         </section>
 

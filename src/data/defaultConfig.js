@@ -512,6 +512,9 @@ export const defaultConfig = {
     }
   ],
 
+  // 7b. Safety Incident Reports (Photo + GPS) synced via Supabase
+  safetyReports: [],
+
   // 8. Multilingual Dictionary (VI, EN, ZH, KR)
   dictionary: {
     appTitle: {
@@ -723,6 +726,60 @@ export const defaultConfig = {
       en: "Survey",
       zh: "评价反馈",
       kr: "설문조사"
+    },
+    navSafety: {
+      vi: "An toàn & SOS",
+      en: "Safety & SOS",
+      zh: "安全与求救",
+      kr: "안전 · SOS"
+    },
+    sosBoardTitle: {
+      vi: "BẢNG GỌI KHẨN CẤP SOS 24/7",
+      en: "24/7 EMERGENCY SOS CALL BOARD",
+      zh: "24/7 紧急救援一键呼叫板",
+      kr: "24시간 긴급 SOS 직통 전화"
+    },
+    sosCallNow: {
+      vi: "Gọi ngay",
+      en: "Call Now",
+      zh: "立即拨打",
+      kr: "바로 전화"
+    },
+    safetyReportTitle: {
+      vi: "BÁO CÁO AN TOÀN (ẢNH + GPS)",
+      en: "SAFETY REPORT (PHOTO + GPS)",
+      zh: "安全隐患上报（照片 + GPS）",
+      kr: "안전 신고 (사진 + GPS)"
+    },
+    safetyTakePhoto: {
+      vi: "Chụp ảnh hiện trường",
+      en: "Take Photo",
+      zh: "现场拍照",
+      kr: "현장 사진 촬영"
+    },
+    safetyChoosePhoto: {
+      vi: "Chọn từ thư viện",
+      en: "Choose Photo",
+      zh: "从相册选择",
+      kr: "앨범에서 선택"
+    },
+    safetyGetGps: {
+      vi: "Lấy tọa độ GPS hiện tại",
+      en: "Get Current GPS Location",
+      zh: "获取当前 GPS 定位",
+      kr: "현재 GPS 위치 가져오기"
+    },
+    safetySubmitBtn: {
+      vi: "Gửi Báo Cáo An Toàn",
+      en: "Submit Safety Report",
+      zh: "提交安全报告",
+      kr: "안전 신고 제출"
+    },
+    safetySubmitSuccess: {
+      vi: "Đã gửi báo cáo an toàn tới Ban Điều hành Cảng!",
+      en: "Safety report sent to Port Operations!",
+      zh: "安全报告已发送至港口运营中心！",
+      kr: "항만 운영센터에 안전 신고가 접수되었습니다!"
     }
   }
 };

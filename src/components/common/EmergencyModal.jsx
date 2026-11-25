@@ -1,7 +1,7 @@
 import React from 'react';
 import { useConfig } from '../../context/ConfigContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { X, Phone, MapPin, AlertTriangle, ShieldCheck, Car } from 'lucide-react';
+import { X, Phone, MapPin, AlertTriangle, ShieldCheck, ShieldAlert, Car } from 'lucide-react';
 
 export default function EmergencyModal({ isOpen, onClose }) {
   const { config, t } = useConfig();

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useConfig } from '../../context/ConfigContext';
-import { Save, Check, Phone } from 'lucide-react';
+import { Save, Check, Plus, Trash2 } from 'lucide-react';
 
 const clone = (val, fallback) => JSON.parse(JSON.stringify(val ?? fallback));
 
@@ -79,13 +79,47 @@ export default function Tab6Emergency() {
 
       {/* 2. Emergency Hotlines */}
       <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-        <h3 className="font-black text-sm text-navy uppercase tracking-wider">
-          6.2 DANH BẠ HOTLINE ĐƯỜNG DÂY NÓNG CỨU HỘ SOS
-        </h3>
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="font-black text-sm text-navy uppercase tracking-wider">
+            6.2 BẢNG HOTLINE KHẨN CẤP SOS 24/7
+          </h3>
+          <button
+            type="button"
+            onClick={() =>
+              setContacts([
+                ...contacts,
+                {
+                  id: 'sos_' + Date.now(),
+                  role: {
+                    vi: 'Đơn vị hỗ trợ khẩn cấp mới (24/7)',
+                    en: 'New 24/7 Emergency Contact',
+                    zh: '24小时紧急联系电话',
+                    kr: '24시간 긴급 연락처'
+                  },
+                  phone: '+84 258 000 000'
+                }
+              ])
+            }
+            className="bg-teal hover:bg-teal-dark text-white font-bold text-xs py-2 px-3 rounded-xl flex items-center space-x-1 shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Thêm Hotline</span>
+          </button>
+        </div>
 
         <div className="space-y-3">
           {contacts.map((c, idx) => (
-            <div key={c.id || idx} className="p-3 bg-slate-50 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div key={c.id || idx} className="p-3 bg-slate-50 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3 relative pr-10">
+              {contacts.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => setContacts(contacts.filter((_, i) => i !== idx))}
+                  className="absolute top-2.5 right-2.5 text-rose-500 hover:text-rose-700 p-1"
+                  title="Xóa số hotline này"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
               <div>
                 <label className="block text-[11px] font-bold text-slate-600">Đơn vị / Bộ phận trực (VI):</label>
                 <input
@@ -93,7 +127,10 @@ export default function Tab6Emergency() {
                   value={c.role?.vi || ''}
                   onChange={(e) => {
                     const updated = [...contacts];
-                    updated[idx].role.vi = e.target.value;
+                    updated[idx] = {
+                      ...updated[idx],
+                      role: { ...(updated[idx].role || {}), vi: e.target.value }
+                    };
                     setContacts(updated);
                   }}
                   className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold text-navy"
@@ -107,7 +144,7 @@ export default function Tab6Emergency() {
                   value={c.phone || ''}
                   onChange={(e) => {
                     const updated = [...contacts];
-                    updated[idx].phone = e.target.value;
+                    updated[idx] = { ...updated[idx], phone: e.target.value };
                     setContacts(updated);
                   }}
                   className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-sos"

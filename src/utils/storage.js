@@ -71,6 +71,7 @@ export function mergeWithDefault(parsed) {
     },
     currencyRates: { ...defaultConfig.currencyRates, ...(parsed.currencyRates || {}) },
     returnPortCard: { ...defaultConfig.returnPortCard, ...(parsed.returnPortCard || {}) },
+    safetyReports: Array.isArray(parsed.safetyReports) ? parsed.safetyReports : [],
     dictionary: { ...defaultConfig.dictionary, ...(parsed.dictionary || {}) },
   };
 }
@@ -174,8 +175,21 @@ function persistLocalCache(configObj, broadcast = true) {
     }
     return true;
   } catch (err) {
-    console.error('Failed to save config to LocalStorage cache', err);
-    return false;
+    // Handle LocalStorage quota exceeded by stripping heavy photo blobs from local cache only
+    try {
+      const lite = {
+        ...configObj,
+        safetyReports: (configObj.safetyReports || []).map((r) => ({ ...r, photoDataUrl: null })),
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(lite));
+      if (broadcast) {
+        window.dispatchEvent(new CustomEvent(CUSTOM_EVENT_NAME, { detail: configObj }));
+      }
+      return true;
+    } catch (innerErr) {
+      console.error('Failed to save config to LocalStorage cache', innerErr);
+      return false;
+    }
   }
 }
 
@@ -340,6 +354,71 @@ export function subscribeConfig(callback, onStatusChange) {
     window.removeEventListener(CUSTOM_EVENT_NAME, handleCustomEvent);
     supabase.removeChannel(channel);
   };
+}
+
+/**
+ * Safety Incident Report operations (Photo + GPS) synced with Supabase app_config (id = 1)
+ */
+const MAX_SAFETY_REPORTS = 30;
+
+export async function submitSafetyReport(reportInput) {
+  const newReport = {
+    id: 'sr_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    timestamp: new Date().toISOString(),
+    status: 'new', // new | processing | resolved
+    ...reportInput,
+  };
+
+  // Read latest remote config first so we don't overwrite concurrent admin updates
+  let baseConfig = getConfig();
+  try {
+    const { data, error } = await supabase
+      .from(APP_CONFIG_TABLE)
+      .select('*')
+      .eq('id', APP_CONFIG_ROW_ID)
+      .maybeSingle();
+    if (!error && data) {
+      const extracted = extractConfigFromRow(data);
+      if (extracted) {
+        baseConfig = mergeWithDefault(extracted);
+      }
+    }
+  } catch {
+    // Offline fallback uses local cache
+  }
+
+  const nextReports = [newReport, ...(baseConfig.safetyReports || [])].slice(0, MAX_SAFETY_REPORTS);
+  const saveRes = await saveConfig({
+    ...baseConfig,
+    safetyReports: nextReports,
+  });
+
+  return {
+    ok: true,
+    remoteSynced: saveRes.ok,
+    report: newReport,
+    error: saveRes.error,
+  };
+}
+
+export async function updateSafetyReportStatus(reportId, status) {
+  const current = getConfig();
+  const updatedReports = (current.safetyReports || []).map((item) =>
+    item.id === reportId ? { ...item, status } : item
+  );
+  return saveConfig({
+    ...current,
+    safetyReports: updatedReports,
+  });
+}
+
+export async function deleteSafetyReport(reportId) {
+  const current = getConfig();
+  const updatedReports = (current.safetyReports || []).filter((item) => item.id !== reportId);
+  return saveConfig({
+    ...current,
+    safetyReports: updatedReports,
+  });
 }
 
 /**

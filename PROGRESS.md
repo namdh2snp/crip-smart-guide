@@ -35,14 +35,15 @@ Cập nhật lần cuối: `2026-11-25` | Trạng thái tổng thể: **Hoàn th
 
 ### A. Giao diện Hành khách (`/`)
 - **Thanh Header cố định (`Header.jsx`)**: Logo Cảng Quốc tế Cam Ranh, nút chuyển nhanh 4 ngôn ngữ (`VI`, `EN`, `ZH`, `KR`), nút truy cập khẩn cấp **SOS** 1 chạm.
-- **Thanh điều hướng Tab cố định (`PassengerTabs.jsx`)**: Ghim ngay dưới Header (`sticky top-16`), cuộn ngang mượt trên di động, tự căn giữa tab đang chọn, hỗ trợ 4 ngôn ngữ (`navShip`–`navFeedback`) với 7 Tab chức năng độc lập; biểu ngữ cảnh báo khẩn cấp (khi bật từ Admin) hiển thị xuyên suốt trên mọi Tab:
+- **Thanh điều hướng Tab cố định (`PassengerTabs.jsx`)**: Ghim ngay dưới Header (`sticky top-16`), cuộn ngang mượt trên di động, tự căn giữa tab đang chọn, hỗ trợ 4 ngôn ngữ (`navShip`–`navSafety`–`navFeedback`) với 8 Tab chức năng độc lập; biểu ngữ cảnh báo khẩn cấp (khi bật từ Admin) hiển thị xuyên suốt trên mọi Tab:
   1. **Tàu & Wi-Fi** (`ShipStatusCard.jsx` + `WifiBanner.jsx`): Trạng thái tàu, cầu bến, thời tiết Cam Ranh, đếm ngược **All Aboard**, nhắc trước 60 phút và sao chép mật khẩu Wi-Fi 1 chạm.
   2. **Di chuyển** (`LogisticsFlow.jsx`): Tab **Đi theo Tour hãng tàu** (bãi đỗ xe bus đoàn) và Tab **Đi tự túc** (lịch xe Shuttle miễn phí & bảng cước Taxi niêm yết kèm hotline).
   3. **Bản đồ** (`TerminalMap.jsx`): Sơ đồ thực tế `/crip-map.png`, bộ lọc điểm tiện ích POI (ATM/Đổi tiền, SIM 4G, Y tế, Miễn thuế, WC, Shuttle Bus) và thẻ chi tiết khi chạm.
   4. **Lịch trình** (`ItineraryList.jsx`): Gợi ý tour tự túc **4 Giờ / 6 Giờ / 8 Giờ** tại Cam Ranh – Nha Trang kèm mốc giờ an toàn bắt buộc quay về cảng.
   5. **Thẻ nói** (`PhraseCards.jsx`): Các câu tiếng Việt khổ lớn kèm phiên âm quốc tế, bản dịch EN/ZH/KR và phát âm mẫu qua **Web Speech API** (`src/utils/speech.js`).
   6. **Đổi tiền** (`CurrencyCalc.jsx`): Quy đổi 2 chiều ngoại tuyến giữa `VND` và `USD`, `CNY`, `KRW` (`src/utils/currency.js`).
-  7. **Khảo sát** (`FeedbackForm.jsx`): Đánh giá nhanh 30 giây bằng biểu tượng cảm xúc theo 3 tiêu chí, góp ý ngắn và lưu cục bộ.
+  7. **An toàn & SOS** (`SafetySosPanel.jsx`): **Bảng gọi khẩn cấp SOS 24/7** (gọi nhanh `113`/`114`/`115`, hotline cảng từ CMS, mở thẻ hồi cảng) và **Báo cáo an toàn kèm chụp ảnh hiện trường (tự nén Canvas) + định vị GPS tự động** gửi Realtime về `/admin`.
+  8. **Khảo sát** (`FeedbackForm.jsx`): Đánh giá nhanh 30 giây bằng biểu tượng cảm xúc theo 3 tiêu chí, góp ý ngắn và lưu cục bộ.
 - **Thanh dock đáy & Modal khẩn cấp (`BottomBar.jsx`, `EmergencyModal.jsx`)**: Luôn cố định trên mọi Tab với nút kích hoạt thẻ toàn màn hình *"LÀM ƠN ĐƯA TÔI VỀ CẢNG QUỐC TẾ CAM RANH"* và danh bạ hotline SOS.
 
 ### B. Giao diện Quản trị Toàn phần (`/admin`)
@@ -51,9 +52,9 @@ Cập nhật lần cuối: `2026-11-25` | Trạng thái tổng thể: **Hoàn th
 - **Tab 3 (`Tab3MapPoi.jsx`)**: Quản lý điểm tiện ích POI với cơ chế **click trực tiếp lên ảnh bản đồ `/crip-map.png`** để tự động gán tọa độ `X%`, `Y%` và chọn danh mục/icon.
 - **Tab 4 (`Tab4Itinerary.jsx`)**: Biên tập lịch trình khám phá 4h / 6h / 8h, các điểm dừng và cảnh báo giờ quay về cảng.
 - **Tab 5 (`Tab5Phrases.jsx`)**: Quản lý bộ thẻ giao tiếp tiếng Việt và cập nhật tỷ giá hối đoái (`USD`, `CNY`, `KRW`).
-- **Tab 6 (`Tab6Emergency.jsx`)**: Quản lý danh bạ hotline cứu hộ SOS và nội dung thẻ *"Đưa tôi về Cảng"*.
+- **Tab 6 (`Tab6Emergency.jsx`)**: Quản lý (thêm/sửa/xóa) bảng hotline cứu hộ SOS 24/7 và nội dung thẻ *"Đưa tôi về Cảng"*.
 - **Tab 7 (`Tab7Dictionary.jsx`)**: Biên tập từ điển giao diện đa ngôn ngữ (key–value cho `VI`, `EN`, `ZH`, `KR`).
-- **Tab 8 (`Tab8DataOps.jsx`)**: Xem danh sách phản hồi khảo sát hành khách, **Xuất file JSON** sao lưu, **Nhập file JSON** khôi phục và **Khôi phục mặc định ban đầu**.
+- **Tab 8 (`Tab8DataOps.jsx`)**: Tiếp nhận và xử lý **Báo cáo An toàn hiện trường (Ảnh + GPS)** đồng bộ Realtime từ Supabase (phóng to ảnh, mở Google Maps, chuyển trạng thái *Mới / Đang xử lý / Đã xử lý*, huy hiệu đếm trên `AdminTabs.jsx`); xem phản hồi khảo sát, **Xuất/Nhập file JSON** và **Khôi phục mặc định**.
 
 ### C. Supabase Cloud, Realtime Đa thiết bị & PWA Ngoại tuyến
 - **Lưu trữ tập trung Supabase (`@supabase/supabase-js`)**: Kết nối bảng `public.app_config` (dòng `id = 1`, cột `data`) tại `src/utils/storage.js`.
@@ -106,12 +107,13 @@ CRIP-Smart-Guide/
 │   │   ├── speech.js              # Phát âm tiếng Việt (Web Speech API)
 │   │   └── currency.js            # Quy đổi tiền tệ ngoại tuyến
 │   ├── pages/
-│   │   ├── PassengerPage.jsx      # Giao diện Hành khách (/) hiển thị theo 7 Tab chức năng
+│   │   ├── PassengerPage.jsx      # Giao diện Hành khách (/) hiển thị theo 8 Tab chức năng
 │   │   └── AdminPage.jsx          # Giao diện Quản trị (/admin) kèm trạng thái Supabase Realtime
 │   └── components/
 │       ├── common/                # Header, BottomBar, EmergencyModal
 │       ├── passenger/             # PassengerTabs, ShipStatusCard, WifiBanner, LogisticsFlow,
-│       │                          # TerminalMap, ItineraryList, PhraseCards, CurrencyCalc, FeedbackForm
+│       │                          # TerminalMap, ItineraryList, PhraseCards, CurrencyCalc,
+│       │                          # SafetySosPanel, FeedbackForm
 │       └── admin/                 # AdminTabs, Tab1Ship .. Tab8DataOps
 ├── crip-config.json               # Tệp cấu hình JSON sao lưu mẫu
 ├── vercel.json                    # Cấu hình SPA rewrite (/(.*) -> /index.html) cho Vercel
@@ -155,5 +157,8 @@ npm run preview
   - Ghi trực tiếp lên `app_config (id = 1)` khi lưu ở `/admin`, bật Supabase Realtime (`SUBSCRIBED`) đồng bộ tức thời sang mọi thiết bị mở `/`, đồng bộ state 8 tab Admin, thêm thanh trạng thái Cloud/Realtime trên `AdminPage.jsx`, và giữ `LocalStorage` + `sw.js` hoạt động ngoại tuyến.
 - **Cấu hình Deploy Vercel (`692dddf`)**: Thêm `vercel.json` cấu hình rewrite mọi đường dẫn về `/index.html` để tránh lỗi 404 khi truy cập trực tiếp `/admin`.
 - **Tái cấu trúc giao diện Hành khách theo Tab (`00ddbdf`)**:
-  - Tạo thanh Tab cố định `PassengerTabs.jsx` chia 7 chức năng độc lập (*Tàu & Wi-Fi*, *Di chuyển*, *Bản đồ*, *Lịch trình*, *Thẻ nói*, *Đổi tiền*, *Khảo sát*).
-  - Bổ sung 7 khóa từ điển 4 ngôn ngữ (`navShip`–`navFeedback`) trong `defaultConfig.js`, hiển thị cảnh báo khẩn cấp xuyên suốt mọi Tab và push lên GitHub để Vercel tự động triển khai.
+  - Tạo thanh Tab cố định `PassengerTabs.jsx` chia các chức năng độc lập, bổ sung khóa từ điển 4 ngôn ngữ (`navShip`–`navFeedback`) trong `defaultConfig.js` và hiển thị cảnh báo khẩn cấp xuyên suốt mọi Tab.
+- **Bổ sung Báo cáo An toàn (Chụp ảnh + GPS) & Bảng gọi khẩn cấp SOS 24/7**:
+  - Xây dựng `SafetySosPanel.jsx` tích hợp Tab thứ 8 (**An toàn & SOS**): Bảng gọi SOS 24/7 1 chạm (`113`/`114`/`115`, hotline cảng từ CMS, nút thẻ hồi cảng) và biểu mẫu báo cáo an toàn kèm chụp ảnh camera/thư viện (tự nén Canvas), định vị GPS tự động (kèm link Google Maps), phân loại sự cố & mức độ khẩn cấp đa ngôn ngữ VI/EN/ZH/KR.
+  - Bổ sung API `submitSafetyReport`, `updateSafetyReportStatus`, `deleteSafetyReport` đồng bộ Realtime qua Supabase `app_config (id = 1)` (có cơ chế dự phòng chống tràn bộ nhớ `LocalStorage`).
+  - Nâng cấp `/admin`: thêm bảng quản lý Báo cáo An toàn (phóng to ảnh, mở Google Maps, đổi trạng thái xử lý) ở `Tab8DataOps.jsx`, thêm huy hiệu số báo cáo mới trên `AdminTabs.jsx`, thêm chức năng thêm/xóa Hotline ở `Tab6Emergency.jsx`, và sửa lỗi thiếu import `ShieldAlert` trong `EmergencyModal.jsx`.

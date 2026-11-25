@@ -1,4 +1,5 @@
 import React from 'react';
+import { useConfig } from '../../context/ConfigContext';
 import {
   Anchor,
   Bus,
@@ -18,10 +19,13 @@ export const ADMIN_TABS = [
   { id: 'phrases', label: '5. Thẻ nói & Tỷ giá', icon: MessageSquareQuote },
   { id: 'emergency', label: '6. Danh bạ SOS', icon: ShieldAlert },
   { id: 'dictionary', label: '7. Từ điển đa ngữ', icon: BookA },
-  { id: 'dataops', label: '8. Dữ liệu & Phản hồi', icon: Database },
+  { id: 'dataops', label: '8. Báo cáo, Phản hồi & Dữ liệu', icon: Database },
 ];
 
 export default function AdminTabs({ activeTab, onSelectTab }) {
+  const { config } = useConfig();
+  const unreadSafetyCount = (config.safetyReports || []).filter((r) => r.status === 'new').length;
+
   return (
     <div className="flex space-x-2 overflow-x-auto pb-2 border-b border-slate-200 no-scrollbar">
       {ADMIN_TABS.map((tab) => {
@@ -39,6 +43,11 @@ export default function AdminTabs({ activeTab, onSelectTab }) {
           >
             <Icon className={`w-4 h-4 ${active ? 'text-teal' : 'text-slate-400'}`} />
             <span>{tab.label}</span>
+            {tab.id === 'dataops' && unreadSafetyCount > 0 && (
+              <span className="bg-sos text-white text-[10px] font-black px-1.5 py-0.5 rounded-full leading-none animate-pulse">
+                {unreadSafetyCount}
+              </span>
+            )}
           </button>
         );
       })}
