@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useConfig } from '../../context/ConfigContext';
 import { Save, Check, Phone } from 'lucide-react';
 
+const clone = (val, fallback) => JSON.parse(JSON.stringify(val ?? fallback));
+
 export default function Tab6Emergency() {
   const { config, updateConfig } = useConfig();
-  const [returnCard, setReturnCard] = useState({ ...config.returnPortCard });
-  const [contacts, setContacts] = useState([...config.emergencyContacts]);
+  const [returnCard, setReturnCard] = useState(() => clone(config.returnPortCard, {}));
+  const [contacts, setContacts] = useState(() => clone(config.emergencyContacts, []));
   const [saved, setSaved] = useState(false);
 
-  const handleSave = (e) => {
+  useEffect(() => {
+    setReturnCard(clone(config.returnPortCard, {}));
+    setContacts(clone(config.emergencyContacts, []));
+  }, [config]);
+
+  const handleSave = async (e) => {
     e.preventDefault();
-    updateConfig({
+    await updateConfig({
       ...config,
       returnPortCard: returnCard,
       emergencyContacts: contacts

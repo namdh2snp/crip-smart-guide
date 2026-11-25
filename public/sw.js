@@ -32,6 +32,11 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Never intercept Supabase API or Realtime requests
+  if (event.request.url.includes('supabase.co')) {
+    return;
+  }
+
   // Navigation request fallback
   if (event.request.mode === 'navigate') {
     event.respondWith(

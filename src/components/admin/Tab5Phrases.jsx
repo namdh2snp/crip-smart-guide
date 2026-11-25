@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useConfig } from '../../context/ConfigContext';
 import { Save, Check } from 'lucide-react';
 
+const clone = (val, fallback) => JSON.parse(JSON.stringify(val ?? fallback));
+
 export default function Tab5Phrases() {
   const { config, updateConfig } = useConfig();
-  const [rates, setRates] = useState({ ...config.currencyRates });
-  const [phrases, setPhrases] = useState([...config.phraseCards]);
+  const [rates, setRates] = useState(() => clone(config.currencyRates, {}));
+  const [phrases, setPhrases] = useState(() => clone(config.phraseCards, []));
   const [saved, setSaved] = useState(false);
 
-  const handleSave = (e) => {
+  useEffect(() => {
+    setRates(clone(config.currencyRates, {}));
+    setPhrases(clone(config.phraseCards, []));
+  }, [config]);
+
+  const handleSave = async (e) => {
     e.preventDefault();
-    updateConfig({
+    await updateConfig({
       ...config,
       currencyRates: rates,
       phraseCards: phrases

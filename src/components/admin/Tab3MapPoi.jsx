@@ -1,13 +1,19 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useConfig } from '../../context/ConfigContext';
 import { Save, Check, Plus, Trash2, MapPin, Crosshair } from 'lucide-react';
 
+const clone = (val) => JSON.parse(JSON.stringify(val || []));
+
 export default function Tab3MapPoi() {
   const { config, updateConfig } = useConfig();
-  const [pois, setPois] = useState([...config.mapPois]);
+  const [pois, setPois] = useState(() => clone(config.mapPois));
   const [selectedPoiIndex, setSelectedPoiIndex] = useState(0);
   const [saved, setSaved] = useState(false);
   const mapContainerRef = useRef(null);
+
+  useEffect(() => {
+    setPois(clone(config.mapPois));
+  }, [config]);
 
   const handleMapClick = (e) => {
     if (!mapContainerRef.current) return;
@@ -57,9 +63,9 @@ export default function Tab3MapPoi() {
     setSelectedPoiIndex(Math.max(0, index - 1));
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    updateConfig({
+    await updateConfig({
       ...config,
       mapPois: pois
     });

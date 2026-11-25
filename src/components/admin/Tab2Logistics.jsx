@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useConfig } from '../../context/ConfigContext';
 import { Save, Check, Plus, Trash2 } from 'lucide-react';
 
+const clone = (val, fallback) => JSON.parse(JSON.stringify(val ?? fallback));
+
 export default function Tab2Logistics() {
   const { config, updateConfig } = useConfig();
-  const [logistics, setLogistics] = useState({ ...config.logistics });
-  const [taxiFares, setTaxiFares] = useState([...config.taxiFares]);
+  const [logistics, setLogistics] = useState(() => clone(config.logistics, {}));
+  const [taxiFares, setTaxiFares] = useState(() => clone(config.taxiFares, []));
   const [saved, setSaved] = useState(false);
 
-  const handleSave = (e) => {
+  useEffect(() => {
+    setLogistics(clone(config.logistics, {}));
+    setTaxiFares(clone(config.taxiFares, []));
+  }, [config]);
+
+  const handleSave = async (e) => {
     e.preventDefault();
-    updateConfig({
+    await updateConfig({
       ...config,
       logistics,
       taxiFares

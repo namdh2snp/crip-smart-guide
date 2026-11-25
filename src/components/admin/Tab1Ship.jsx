@@ -1,17 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useConfig } from '../../context/ConfigContext';
 import { Save, Check, AlertCircle } from 'lucide-react';
 
+const clone = (val) => JSON.parse(JSON.stringify(val || {}));
+
 export default function Tab1Ship() {
   const { config, updateConfig } = useConfig();
-  const [ship, setShip] = useState({ ...config.ship });
-  const [wifi, setWifi] = useState({ ...config.wifi });
-  const [alertConfig, setAlertConfig] = useState({ ...config.emergencyAlert });
+  const [ship, setShip] = useState(() => clone(config.ship));
+  const [wifi, setWifi] = useState(() => clone(config.wifi));
+  const [alertConfig, setAlertConfig] = useState(() => clone(config.emergencyAlert));
   const [saved, setSaved] = useState(false);
 
-  const handleSave = (e) => {
+  useEffect(() => {
+    setShip(clone(config.ship));
+    setWifi(clone(config.wifi));
+    setAlertConfig(clone(config.emergencyAlert));
+  }, [config]);
+
+  const handleSave = async (e) => {
     e.preventDefault();
-    updateConfig({
+    await updateConfig({
       ...config,
       ship,
       wifi,

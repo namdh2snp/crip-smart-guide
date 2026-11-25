@@ -28,12 +28,16 @@ export default function Tab8DataOps() {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       const content = event.target?.result;
       if (typeof content === 'string') {
-        const res = importConfig(content);
+        const res = await importConfig(content);
         if (res.success) {
-          setImportStatus('Khôi phục file JSON thành công!');
+          setImportStatus(
+            res.remoteSynced
+              ? 'Khôi phục file JSON và đồng bộ lên Supabase thành công!'
+              : 'Đã nạp file JSON cục bộ (chưa đồng bộ được lên Supabase).'
+          );
           setTimeout(() => setImportStatus(''), 3000);
         } else {
           alert('Lỗi nạp file: ' + res.error);
@@ -43,9 +47,9 @@ export default function Tab8DataOps() {
     reader.readAsText(file);
   };
 
-  const handleResetDefault = () => {
+  const handleResetDefault = async () => {
     if (window.confirm('Bạn có chắc chắn muốn khôi phục toàn bộ cấu hình về mặc định ban đầu của Cảng? Mọi chỉnh sửa sẽ bị xóa.')) {
-      resetConfig();
+      await resetConfig();
       alert('Đã khôi phục cấu hình mặc định thành công!');
     }
   };

@@ -9,10 +9,12 @@ import Tab5Phrases from '../components/admin/Tab5Phrases';
 import Tab6Emergency from '../components/admin/Tab6Emergency';
 import Tab7Dictionary from '../components/admin/Tab7Dictionary';
 import Tab8DataOps from '../components/admin/Tab8DataOps';
-import { ArrowLeft, ShieldCheck, RefreshCw } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Cloud, CloudOff, AlertTriangle, Loader2 } from 'lucide-react';
+import { useConfig } from '../context/ConfigContext';
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('ship');
+  const { syncStatus, realtimeStatus, syncError } = useConfig();
 
   return (
     <div className="min-h-screen bg-surface pb-16">
@@ -53,6 +55,35 @@ export default function AdminPage() {
 
       {/* Main Admin Content Container */}
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+        {/* Supabase Realtime Status Banner */}
+        <div
+          className={`flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold ${
+            syncStatus === 'synced'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : syncStatus === 'connecting'
+              ? 'bg-slate-100 border-slate-200 text-slate-700'
+              : syncStatus === 'offline'
+              ? 'bg-amber-50 border-amber-200 text-amber-800'
+              : 'bg-rose-50 border-rose-200 text-rose-800'
+          }`}
+        >
+          <div className="flex items-center space-x-2">
+            {syncStatus === 'synced' && <Cloud className="w-4 h-4 text-emerald-600 shrink-0" />}
+            {syncStatus === 'connecting' && <Loader2 className="w-4 h-4 text-slate-500 animate-spin shrink-0" />}
+            {syncStatus === 'offline' && <CloudOff className="w-4 h-4 text-amber-600 shrink-0" />}
+            {syncStatus === 'error' && <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />}
+            <span>
+              {syncStatus === 'synced' && 'Supabase Cloud: Đã đồng bộ bảng app_config (id = 1)'}
+              {syncStatus === 'connecting' && 'Supabase Cloud: Đang tải cấu hình từ app_config...'}
+              {syncStatus === 'offline' && 'Chế độ ngoại tuyến: Đang dùng bộ nhớ đệm cục bộ'}
+              {syncStatus === 'error' && `Lỗi đồng bộ Supabase: ${syncError || 'Kiểm tra quyền bảng app_config'}`}
+            </span>
+          </div>
+          <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/80 border border-current/20">
+            Realtime: {realtimeStatus === 'SUBSCRIBED' ? 'LIVE' : realtimeStatus}
+          </span>
+        </div>
+
         {/* Navigation Tabs Bar */}
         <AdminTabs activeTab={activeTab} onSelectTab={setActiveTab} />
 

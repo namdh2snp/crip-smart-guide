@@ -1,18 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useConfig } from '../../context/ConfigContext';
 import { Save, Check, Globe } from 'lucide-react';
 
+const clone = (val) => JSON.parse(JSON.stringify(val || {}));
+
 export default function Tab7Dictionary() {
   const { config, updateConfig } = useConfig();
-  const [dictionary, setDictionary] = useState({ ...(config.dictionary || {}) });
+  const [dictionary, setDictionary] = useState(() => clone(config.dictionary));
   const [selectedKey, setSelectedKey] = useState(Object.keys(config.dictionary || {})[0] || '');
   const [saved, setSaved] = useState(false);
 
+  useEffect(() => {
+    setDictionary(clone(config.dictionary));
+  }, [config]);
+
   const keys = Object.keys(dictionary);
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    updateConfig({
+    await updateConfig({
       ...config,
       dictionary
     });

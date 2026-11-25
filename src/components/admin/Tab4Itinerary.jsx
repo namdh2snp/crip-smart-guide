@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useConfig } from '../../context/ConfigContext';
 import { Save, Check } from 'lucide-react';
 
+const clone = (val) => JSON.parse(JSON.stringify(val || []));
+
 export default function Tab4Itinerary() {
   const { config, updateConfig } = useConfig();
-  const [itineraries, setItineraries] = useState([...config.itineraries]);
+  const [itineraries, setItineraries] = useState(() => clone(config.itineraries));
   const [saved, setSaved] = useState(false);
 
-  const handleSave = (e) => {
+  useEffect(() => {
+    setItineraries(clone(config.itineraries));
+  }, [config]);
+
+  const handleSave = async (e) => {
     e.preventDefault();
-    updateConfig({
+    await updateConfig({
       ...config,
       itineraries
     });

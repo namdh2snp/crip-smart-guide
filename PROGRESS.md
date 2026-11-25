@@ -1,7 +1,7 @@
 # Tiến độ Dự án: CRIP Smart Guide
 
 **Cẩm nang Thông minh Cảng Quốc tế Cam Ranh (Cam Ranh International Port - Smart Guide)**  
-Cập nhật lần cuối: `2026-11-25` | Trạng thái tổng thể: **Hoàn thành 30/30 tác vụ (Phase 1 – Phase 5) • Đã build & kiểm thử chạy trên máy mới**
+Cập nhật lần cuối: `2026-11-25` | Trạng thái tổng thể: **Hoàn thành 30/30 tác vụ (Phase 1 – Phase 5) • Đã nâng cấp lưu trữ Supabase Cloud + Realtime đa thiết bị**
 
 ---
 
@@ -57,9 +57,12 @@ Cập nhật lần cuối: `2026-11-25` | Trạng thái tổng thể: **Hoàn th
 - **Tab 7 (`Tab7Dictionary.jsx`)**: Biên tập từ điển giao diện đa ngôn ngữ (key–value cho `VI`, `EN`, `ZH`, `KR`).
 - **Tab 8 (`Tab8DataOps.jsx`)**: Xem danh sách phản hồi khảo sát hành khách, **Xuất file JSON** sao lưu, **Nhập file JSON** khôi phục và **Khôi phục mặc định ban đầu**.
 
-### C. PWA Ngoại tuyến & Đồng bộ Dữ liệu
-- **Đồng bộ thời gian thực**: Mọi thay đổi ở `/admin` lưu vào `LocalStorage` (`CRIP_CONFIG_V1`) và phát đồng thời `CustomEvent` (cùng tab) + sự kiện `storage` (đa tab) để trang `/` cập nhật ngay lập tức.
-- **Offline PWA**: Cấu hình `public/manifest.json` và `public/sw.js` (chiến lược Cache-First cho tài nguyên tĩnh bao gồm `/crip-map.png`, đăng ký trong `src/main.jsx` ở môi trường production).
+### C. Supabase Cloud, Realtime Đa thiết bị & PWA Ngoại tuyến
+- **Lưu trữ tập trung Supabase (`@supabase/supabase-js`)**: Kết nối bảng `public.app_config` (dòng `id = 1`, cột `data`) tại `src/utils/storage.js`.
+  - Khi tải `/` hoặc `/admin`: Ưu tiên đọc dữ liệu từ `app_config (id = 1)`. Nếu bảng đang trống, tự động trộn và đẩy dữ liệu khởi tạo từ `crip-config.json` + `src/data/defaultConfig.js` lên `id = 1`.
+  - Khi bấm **Lưu** ở `/admin`: `upsert` trực tiếp lên `app_config (id = 1)`, đồng thời hiển thị thanh trạng thái **Supabase Cloud / Realtime: LIVE** trên `AdminPage.jsx`.
+- **Đồng bộ Realtime đa thiết bị**: Lắng nghe `postgres_changes` của Supabase Realtime (`table: app_config`, `filter: id=eq.1`) kết hợp `CustomEvent` + `storage` event để mọi máy tính và điện thoại mở `/` tự động cập nhật ngay lập tức không cần reload.
+- **Offline PWA**: Giữ nguyên bộ nhớ đệm `LocalStorage` (`CRIP_CONFIG_V1`) làm lớp fallback ngoại tuyến khi mất mạng; cấu hình `public/manifest.json` và `public/sw.js` (chiến lược Cache-First cho tài nguyên tĩnh bao gồm `/crip-map.png`, bỏ qua cache cho request `supabase.co`).
 - **Cấu hình sao lưu mẫu**: Có sẵn tệp `crip-config.json` tại thư mục gốc để kiểm thử nhập/xuất dữ liệu thực tế.
 
 ---
