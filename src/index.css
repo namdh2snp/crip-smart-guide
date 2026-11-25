@@ -32,3 +32,12 @@
 button, a, input, select {
   min-height: 44px;
 }
+
+/* Hide scrollbars cleanly on horizontal pill tabs */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

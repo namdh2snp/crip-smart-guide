@@ -681,6 +681,48 @@ export const defaultConfig = {
       en: "Port Admin Center",
       zh: "港口管理中心",
       kr: "항만 관리자 센터"
+    },
+    navShip: {
+      vi: "Tàu & Wi-Fi",
+      en: "Ship & Wi-Fi",
+      zh: "游轮与Wi-Fi",
+      kr: "선박·Wi-Fi"
+    },
+    navLogistics: {
+      vi: "Di chuyển",
+      en: "Transport",
+      zh: "交通出行",
+      kr: "교통·택시"
+    },
+    navMap: {
+      vi: "Bản đồ",
+      en: "Port Map",
+      zh: "港口地图",
+      kr: "터미널 지도"
+    },
+    navItinerary: {
+      vi: "Lịch trình",
+      en: "Itineraries",
+      zh: "推荐行程",
+      kr: "추천 일정"
+    },
+    navPhrases: {
+      vi: "Thẻ nói",
+      en: "Phrases",
+      zh: "常用语",
+      kr: "회화 카드"
+    },
+    navCurrency: {
+      vi: "Đổi tiền",
+      en: "Currency",
+      zh: "汇率换算",
+      kr: "환율 계산"
+    },
+    navFeedback: {
+      vi: "Khảo sát",
+      en: "Survey",
+      zh: "评价反馈",
+      kr: "설문조사"
     }
   }
 };

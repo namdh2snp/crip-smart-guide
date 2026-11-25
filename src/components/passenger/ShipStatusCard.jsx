@@ -3,7 +3,7 @@ import { useConfig } from '../../context/ConfigContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { Anchor, Clock, Bell, BellRing, Sun, Cloud, AlertCircle, Compass } from 'lucide-react';
 
-export default function ShipStatusCard() {
+export default function ShipStatusCard({ hideAlert = false }) {
   const { config, t } = useConfig();
   const { currentLang } = useLanguage();
 
@@ -13,7 +13,7 @@ export default function ShipStatusCard() {
   });
 
   const ship = config.ship || {};
-  const alertMsg = config.emergencyAlert?.enabled
+  const alertMsg = !hideAlert && config.emergencyAlert?.enabled
     ? (config.emergencyAlert.message[currentLang] || config.emergencyAlert.message['en'] || config.emergencyAlert.message['vi'])
     : null;
 
