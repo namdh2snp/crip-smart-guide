@@ -72,6 +72,7 @@ export function mergeWithDefault(parsed) {
     currencyRates: { ...defaultConfig.currencyRates, ...(parsed.currencyRates || {}) },
     returnPortCard: { ...defaultConfig.returnPortCard, ...(parsed.returnPortCard || {}) },
     safetyReports: Array.isArray(parsed.safetyReports) ? parsed.safetyReports : [],
+    feedbacks: Array.isArray(parsed.feedbacks) ? parsed.feedbacks : [],
     dictionary: { ...defaultConfig.dictionary, ...(parsed.dictionary || {}) },
   };
 }
@@ -422,33 +423,65 @@ export async function deleteSafetyReport(reportId) {
 }
 
 /**
- * Feedback operations (LocalStorage)
+ * Feedback operations synced with Supabase app_config (id = 1) + LocalStorage offline fallback
  */
+const MAX_FEEDBACKS = 100;
+
 export function getFeedbacks() {
   try {
-    const raw = localStorage.getItem(FEEDBACK_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const configFeedbacks = getConfig().feedbacks || [];
+    const rawLegacy = localStorage.getItem(FEEDBACK_KEY);
+    const legacy = rawLegacy ? JSON.parse(rawLegacy) : [];
+    const seen = new Set(configFeedbacks.map((f) => f.id));
+    const merged = [...configFeedbacks, ...legacy.filter((f) => !seen.has(f.id))];
+    return merged;
   } catch (err) {
     console.error('Failed to get feedbacks', err);
     return [];
   }
 }
 
-export function saveFeedback(item) {
+export async function saveFeedback(item) {
+  const newRecord = {
+    id: 'fb_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    timestamp: new Date().toISOString(),
+    ...item,
+  };
+
+  // Always keep a local copy immediately
   try {
-    const feedbacks = getFeedbacks();
-    const newRecord = {
-      id: 'fb_' + Date.now(),
-      timestamp: new Date().toISOString(),
-      ...item,
-    };
-    feedbacks.unshift(newRecord);
-    localStorage.setItem(FEEDBACK_KEY, JSON.stringify(feedbacks));
-    return true;
-  } catch (err) {
-    console.error('Failed to save feedback', err);
-    return false;
+    const rawLegacy = localStorage.getItem(FEEDBACK_KEY);
+    const legacy = rawLegacy ? JSON.parse(rawLegacy) : [];
+    localStorage.setItem(FEEDBACK_KEY, JSON.stringify([newRecord, ...legacy].slice(0, MAX_FEEDBACKS)));
+  } catch {
+    // ignore local quota error
   }
+
+  // Fetch latest remote config before appending to avoid overwriting concurrent updates
+  let baseConfig = getConfig();
+  try {
+    const { data, error } = await supabase
+      .from(APP_CONFIG_TABLE)
+      .select('*')
+      .eq('id', APP_CONFIG_ROW_ID)
+      .maybeSingle();
+    if (!error && data) {
+      const extracted = extractConfigFromRow(data);
+      if (extracted) {
+        baseConfig = mergeWithDefault(extracted);
+      }
+    }
+  } catch {
+    // Offline fallback uses local cache
+  }
+
+  const nextFeedbacks = [newRecord, ...(baseConfig.feedbacks || [])].slice(0, MAX_FEEDBACKS);
+  const saveRes = await saveConfig({
+    ...baseConfig,
+    feedbacks: nextFeedbacks,
+  });
+
+  return { ok: true, remoteSynced: saveRes.ok, feedback: newRecord };
 }
 
 /**

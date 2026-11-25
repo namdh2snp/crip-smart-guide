@@ -44,7 +44,7 @@ export default function Tab8DataOps() {
 
   useEffect(() => {
     setFeedbacks(getFeedbacks());
-  }, []);
+  }, [config]);
 
   const handleExport = () => {
     const jsonStr = exportConfig();

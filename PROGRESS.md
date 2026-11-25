@@ -158,7 +158,11 @@ npm run preview
 - **Cấu hình Deploy Vercel (`692dddf`)**: Thêm `vercel.json` cấu hình rewrite mọi đường dẫn về `/index.html` để tránh lỗi 404 khi truy cập trực tiếp `/admin`.
 - **Tái cấu trúc giao diện Hành khách theo Tab (`00ddbdf`)**:
   - Tạo thanh Tab cố định `PassengerTabs.jsx` chia các chức năng độc lập, bổ sung khóa từ điển 4 ngôn ngữ (`navShip`–`navFeedback`) trong `defaultConfig.js` và hiển thị cảnh báo khẩn cấp xuyên suốt mọi Tab.
-- **Bổ sung Báo cáo An toàn (Chụp ảnh + GPS) & Bảng gọi khẩn cấp SOS 24/7**:
+- **Bổ sung Báo cáo An toàn (Chụp ảnh + GPS) & Bảng gọi khẩn cấp SOS 24/7 (`3833b62`)**:
   - Xây dựng `SafetySosPanel.jsx` tích hợp Tab thứ 8 (**An toàn & SOS**): Bảng gọi SOS 24/7 1 chạm (`113`/`114`/`115`, hotline cảng từ CMS, nút thẻ hồi cảng) và biểu mẫu báo cáo an toàn kèm chụp ảnh camera/thư viện (tự nén Canvas), định vị GPS tự động (kèm link Google Maps), phân loại sự cố & mức độ khẩn cấp đa ngôn ngữ VI/EN/ZH/KR.
   - Bổ sung API `submitSafetyReport`, `updateSafetyReportStatus`, `deleteSafetyReport` đồng bộ Realtime qua Supabase `app_config (id = 1)` (có cơ chế dự phòng chống tràn bộ nhớ `LocalStorage`).
   - Nâng cấp `/admin`: thêm bảng quản lý Báo cáo An toàn (phóng to ảnh, mở Google Maps, đổi trạng thái xử lý) ở `Tab8DataOps.jsx`, thêm huy hiệu số báo cáo mới trên `AdminTabs.jsx`, thêm chức năng thêm/xóa Hotline ở `Tab6Emergency.jsx`, và sửa lỗi thiếu import `ShieldAlert` trong `EmergencyModal.jsx`.
+- **Hoàn thiện chuyển đổi sang Dự án Remote-Synced đa máy**:
+  - Chuyển nốt dữ liệu **Khảo sát hành khách (`feedbacks`)** từ `LocalStorage` cục bộ lên đồng bộ **Supabase Cloud + Realtime** (`app_config id = 1`), bảo đảm 100% dữ liệu (Cấu hình + Báo cáo An toàn + Khảo sát) đồng bộ mọi máy.
+  - Cập nhật Hiến pháp dự án `.specify/memory/constitution.md` lên **v1.1.0** phản ánh kiến trúc Remote-Synced (GitHub + Supabase + Vercel + Offline PWA).
+  - Bổ sung `README.md` và `.env.example` hướng dẫn quy trình `git clone` / `git pull` / `git push` để làm việc liền mạch trên nhiều máy tính.

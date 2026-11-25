@@ -1,15 +1,10 @@
 <!--
 Sync Impact Report:
-- Version change: none (Template) → 1.0.0
+- Version change: 1.0.0 → 1.1.0
 - List of modified principles:
-  - [PRINCIPLE_1_NAME] → I. Kiến trúc 100% CMS-Driven & Phân tách Dữ liệu (CMS-Driven & Zero Hardcoding)
-  - [PRINCIPLE_2_NAME] → II. Thiết kế Mobile-First & Sẵn sàng Ngoại tuyến (Mobile-First & Offline PWA)
-  - [PRINCIPLE_3_NAME] → III. Đa ngôn ngữ Tức thì (Real-time Multilingual Support - VI, EN, ZH, KR)
-  - [PRINCIPLE_4_NAME] → IV. Nhận diện Thương hiệu & Trải nghiệm Thị giác (Brand Identity & Accessibility)
-  - [PRINCIPLE_5_NAME] → V. Vận hành Độc lập Cục bộ & Khả chuyển (Local-First Execution & Portability)
-- Added sections:
-  - Tech Stack & Quy chuẩn Kiến trúc Kỹ thuật
-  - Tiêu chuẩn Chất lượng & Trải nghiệm Du khách (Quality Gates)
+  - I. Kiến trúc 100% CMS-Driven & Phân tách Dữ liệu → Nâng cấp tầng lưu trữ trung tâm sang Supabase Cloud + Realtime với LocalStorage offline cache
+  - V. Vận hành Độc lập Cục bộ & Khả chuyển → Mở rộng thành Vận hành Đồng bộ Từ xa & Khả chuyển (Remote-Synced via GitHub/Supabase/Vercel + Portable Local Dev)
+- Added sections: None
 - Removed sections: None
 - Follow-up TODOs: None
 -->
@@ -22,8 +17,8 @@ Cẩm nang Thông minh Cảng Quốc tế Cam Ranh (Cam Ranh International Port 
 
 ### I. Kiến trúc 100% CMS-Driven & Phân tách Dữ liệu (CMS-Driven & Zero Hardcoding)
 - **Bắt buộc tuyệt đối (NON-NEGOTIABLE)**: Không hardcode bất kỳ nội dung tĩnh nào (thông tin cảng, dịch vụ ăn uống, bản đồ, địa điểm tham quan, thông báo, FAQ, lịch trình tàu) trực tiếp trong các React components của giao diện hành khách.
-- Mọi dữ liệu hiển thị phải bắt nguồn từ nguồn cấu hình trung tâm tại `src/data/defaultConfig.js` và được truy xuất qua lớp quản lý dữ liệu `src/utils/storage.js` dựa trên `LocalStorage`.
-- Cấu trúc schema dữ liệu phải được module hóa chuẩn mực, cho phép quản trị viên chỉnh sửa trên giao diện nội bộ và đảm bảo khả năng nâng cấp lên giải pháp Backend-as-a-Service (như Supabase) trong tương lai mà không làm thay đổi hợp đồng giao diện người dùng (UI Contract).
+- Mọi dữ liệu hiển thị (cấu hình, báo cáo an toàn, khảo sát hành khách) phải bắt nguồn từ hạt giống cấu hình tại `src/data/defaultConfig.js` / `crip-config.json` và được quản lý qua lớp trừu tượng `src/utils/storage.js`, đồng bộ tập trung qua **Supabase Cloud (`app_config`) + Realtime** và tự động dự phòng bằng `LocalStorage` khi ngoại tuyến.
+- Cấu trúc schema dữ liệu phải được module hóa chuẩn mực, cho phép quản trị viên chỉnh sửa trên giao diện `/admin` và đồng bộ tức thời đến mọi thiết bị mà không làm thay đổi hợp đồng giao diện người dùng (UI Contract).
 
 ### II. Thiết kế Mobile-First & Sẵn sàng Ngoại tuyến (Mobile-First & Offline PWA)
 - **Bắt buộc tuyệt đối (NON-NEGOTIABLE)**: Giao diện người dùng phải được thiết kế và tối ưu hoá ưu tiên tuyệt đối cho thiết bị di động (Mobile-First, độ phân giải cơ sở 360px – 430px), đồng thời co giãn mượt mà trên Tablet và Desktop.
@@ -45,19 +40,19 @@ Cẩm nang Thông minh Cảng Quốc tế Cam Ranh (Cam Ranh International Port 
   - **Đỏ Cam Khẩn cấp (`#E63946`)**: Chỉ định chuyên biệt cho nút bấm SOS, đường dây nóng hỗ trợ khẩn cấp y tế/an ninh và cảnh báo quan trọng.
 - **Quy chuẩn Font & Typography**: Sử dụng bộ font `Inter` kết hợp `Noto Sans` (bảo đảm hiển thị sắc nét ký tự có dấu Tiếng Việt, chữ Hán giản thể/phồn thể và Hangeul tiếng Hàn). Cỡ chữ nội dung văn bản (body text) tối thiểu là `16px` để chống mỏi mắt và đảm bảo khả năng đọc nhanh khi du khách đang di chuyển.
 
-### V. Vận hành Độc lập Cục bộ & Khả chuyển (Local-First Execution & Portability)
-- **Bắt buộc tuyệt đối (NON-NEGOTIABLE)**: Ứng dụng vận hành độc lập hoàn toàn trên môi trường máy cục bộ (Local Environment). Mọi scripts, build pipeline và dependencies phải tự cung tự cấp, không yêu cầu bất kỳ ràng buộc nào về việc đẩy mã nguồn lên GitHub hay dịch vụ lưu trữ đám mây.
-- Stack công nghệ cốt lõi: `React` + `Vite` + `Tailwind CSS` + `React Router` + `Lucide Icons`. Quá trình build và dev server phải khởi động nhanh, tinh gọn và không phụ thuộc dịch vụ ngoài.
+### V. Vận hành Đồng bộ Từ xa & Khả chuyển Đa máy (Remote-Synced & Portable Execution)
+- **Bắt buộc tuyệt đối (NON-NEGOTIABLE)**: Mã nguồn, lịch sử phát triển, bộ đặc tả (`.specify/`, `specs/`) và tiến độ (`PROGRESS.md`) phải được lưu trữ đồng bộ trên kho **GitHub Remote** (`origin/main`), triển khai tự động trên **Vercel**, và đồng bộ dữ liệu thời gian thực qua **Supabase Cloud**, cho phép clone và làm việc ngay trên bất kỳ máy tính nào chỉ bằng `git clone` → `npm install` → `npm run dev`.
+- Stack công nghệ cốt lõi: `React` + `Vite` + `Tailwind CSS` + `React Router` + `Lucide Icons` + `@supabase/supabase-js`. Quá trình build và dev server phải khởi động nhanh, tinh gọn và vẫn giữ đầy đủ chế độ dự phòng ngoại tuyến (PWA).
 
 ## Tech Stack & Quy chuẩn Kiến trúc Kỹ thuật
 
 1. **Framework & Bundler**: React 18+ cùng Vite nhằm tối ưu tốc độ render, Hot Module Replacement (HMR) và kích thước bundle gọn nhẹ.
 2. **Styling**: Tailwind CSS với custom theme cấu hình sẵn toàn bộ mã màu thương hiệu (#0A2540, #00A896, #F8FAFC, #E63946) và font chữ chuẩn.
-3. **Routing**: React Router hỗ trợ SPA routing mượt mà, chuyển trang không gián đoạn giữa các danh mục cẩm nang.
+3. **Routing**: React Router hỗ trợ SPA routing mượt mà, kèm `vercel.json` rewrite để mọi đường dẫn (`/admin`) hoạt động chuẩn khi deploy.
 4. **Icons**: Bộ biểu tượng `Lucide React` đồng nhất, trực quan, hỗ trợ nhận biết thông tin không cần qua rào cản ngôn ngữ.
 5. **Data Layer**:
-   - `src/data/defaultConfig.js`: Nguồn dữ liệu hạt giống (seed data) ban đầu cho danh mục, dịch vụ, địa điểm và bản đồ.
-   - `src/utils/storage.js`: Adapter trừu tượng hóa việc đọc/ghi dữ liệu vào `LocalStorage`, chuẩn bị sẵn interface để tích hợp Supabase SDK khi có nhu cầu.
+   - `src/data/defaultConfig.js` & `crip-config.json`: Nguồn dữ liệu hạt giống ban đầu cho danh mục, dịch vụ, địa điểm, bản đồ và từ điển 4 ngôn ngữ.
+   - `src/utils/storage.js`: Adapter trừu tượng hóa kết nối **Supabase (`app_config`, Realtime `postgres_changes`)** kết hợp lớp cache dự phòng `LocalStorage`.
 
 ## Tiêu chuẩn Chất lượng & Trải nghiệm Du khách (Quality Gates)
 
@@ -74,4 +69,4 @@ Cẩm nang Thông minh Cảng Quốc tế Cam Ranh (Cam Ranh International Port 
   - **MINOR (1.X.0)**: Bổ sung nguyên tắc mới, mở rộng hỗ trợ ngôn ngữ hoặc bổ sung module kiến trúc.
   - **PATCH (1.0.X)**: Hiệu chỉnh câu chữ, làm rõ hướng dẫn, sửa lỗi chính tả mà không làm thay đổi ý nghĩa quy định.
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-24 | **Last Amended**: 2026-11-24
+**Version**: 1.1.0 | **Ratified**: 2026-11-24 | **Last Amended**: 2026-11-25

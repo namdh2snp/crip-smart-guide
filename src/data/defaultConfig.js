@@ -512,8 +512,9 @@ export const defaultConfig = {
     }
   ],
 
-  // 7b. Safety Incident Reports (Photo + GPS) synced via Supabase
+  // 7b. Safety Incident Reports (Photo + GPS) & Customer Feedbacks synced via Supabase
   safetyReports: [],
+  feedbacks: [],
 
   // 8. Multilingual Dictionary (VI, EN, ZH, KR)
   dictionary: {

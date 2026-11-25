@@ -14,6 +14,7 @@ export default function FeedbackForm() {
     safety: 'happy'
   });
   const [comment, setComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const criteria = [
@@ -22,14 +23,19 @@ export default function FeedbackForm() {
     { key: 'safety', label: 'An ninh trật tự & xe đưa đón (Transport & Security)' }
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    saveFeedback({
-      ratings,
-      comment,
-      language: currentLang
-    });
-    setSubmitted(true);
+    setSubmitting(true);
+    try {
+      await saveFeedback({
+        ratings,
+        comment,
+        language: currentLang
+      });
+      setSubmitted(true);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -106,10 +112,11 @@ export default function FeedbackForm() {
 
           <button
             type="submit"
-            className="w-full bg-navy hover:bg-navy-light text-white font-black py-2.5 px-4 rounded-xl text-xs uppercase shadow transition-all flex items-center justify-center space-x-1.5"
+            disabled={submitting}
+            className="w-full bg-navy hover:bg-navy-light disabled:opacity-60 text-white font-black py-2.5 px-4 rounded-xl text-xs uppercase shadow transition-all flex items-center justify-center space-x-1.5"
           >
             <Send className="w-3.5 h-3.5 text-teal" />
-            <span>{t('submitFeedback', currentLang)}</span>
+            <span>{submitting ? '...' : t('submitFeedback', currentLang)}</span>
           </button>
         </form>
       )}
