@@ -165,6 +165,6 @@ Ban điều hành Cảng Quốc tế Cam Ranh và đội ngũ quản lý ca tr�
 ## Assumptions
 
 - **Môi trường thiết bị hành khách**: Đa số du khách sử dụng điện thoại thông minh hiện đại (iOS Safari hoặc Android Chrome) có hỗ trợ LocalStorage và Web Speech API (tổng hợp giọng nói); nếu Web Speech API không khả dụng trên một số dòng máy cũ, hệ thống vẫn hiển thị thẻ văn bản rõ nét cho tài xế/người bản xứ đọc.
-- **Quyền truy cập Admin**: Giao diện `/admin` trong phiên bản vận hành cục bộ được truy cập trực tiếp để tối đa hóa tốc độ thao tác của Ban điều hành cảng; cấu trúc dữ liệu và logic được module hóa để sẵn sàng tích hợp màn hình đăng nhập xác thực khi nâng cấp lên hệ thống mạng diện rộng.
+- **Quyền truy cập Admin**: Giao diện `/admin` được bảo vệ bằng **Mã PIN quản trị** (lưu dạng băm SHA-256 có salt trong `adminAuth` đồng bộ Supabase Cloud, phiên đăng nhập 8 giờ trong `LocalStorage`, nút Khóa nhanh, tạm khóa 30 giây sau 5 lần nhập sai liên tiếp, và cho phép đổi mã PIN 4–8 chữ số trong Tab 8). Cấu trúc xác thực được tách riêng tại `src/utils/adminAuth.js` và `src/components/admin/AdminPinGate.jsx`.
 - **Độ chính xác giờ All Aboard**: Giờ All Aboard do nhân viên quản trị cảng thiết lập theo thông báo chính thức từ thuyền trưởng hoặc đại lý hàng hải của từng chuyến tàu cụ thể.
 - **Tính khả chuyển của hình ảnh bản đồ**: Bản đồ nhà ga sử dụng sơ đồ đồ họa định dạng SVG/PNG được lưu trữ cục bộ trong thư mục tài nguyên ứng dụng, đảm bảo hiển thị sắc nét ở mọi độ phân giải màn hình mà không cần nạp từ dịch vụ bản đồ trực tuyến bên ngoài.

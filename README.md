@@ -2,7 +2,7 @@
 
 Ứng dụng web PWA đa ngôn ngữ (`VI` / `EN` / `ZH` / `KR`) phục vụ hành khách tàu du lịch biển quốc tế và nội địa cập **Cảng Quốc tế Cam Ranh (Cam Ranh International Port - CRIP)**, gồm 2 giao diện tách biệt:
 - **`/` — Giao diện Hành khách (Mobile-First, 8 Tab chức năng)**: Thông tin tàu & đếm ngược All Aboard, Wi-Fi 1 chạm, Phân luồng Tour/Shuttle/Taxi, Bản đồ nhà ga tương tác, Lịch trình 4h/6h/8h, Thẻ giao tiếp tiếng Việt (Web Speech), Máy tính đổi tiền ngoại tuyến, **Báo cáo An toàn (Ảnh + GPS) & Bảng gọi SOS 24/7**, và Khảo sát 30 giây.
-- **`/admin` — Trung tâm Quản trị CMS (8 Tab)**: Biên tập 100% nội dung ứng dụng, chấm tọa độ POI trực tiếp trên ảnh sơ đồ, quản lý danh bạ SOS 24/7, tiếp nhận **Báo cáo An toàn (Ảnh + GPS)** & **Khảo sát** theo thời gian thực qua Supabase Realtime, và sao lưu/phục hồi JSON.
+- **`/admin` — Trung tâm Quản trị CMS (8 Tab, bảo vệ bằng Mã PIN)**: Xác thực **Mã PIN** (băm SHA-256 đồng bộ Supabase, ghi nhớ phiên 8 giờ, nút **Khóa nhanh**, tạm khóa 30s khi sai 5 lần, đổi PIN trong Tab 8); biên tập 100% nội dung ứng dụng, chấm tọa độ POI trực tiếp trên ảnh sơ đồ, quản lý danh bạ SOS 24/7, tiếp nhận **Báo cáo An toàn (Ảnh + GPS)** & **Khảo sát** theo thời gian thực qua Supabase Realtime, và sao lưu/phục hồi JSON.
 
 ---
 

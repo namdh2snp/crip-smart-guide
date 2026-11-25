@@ -1,19 +1,19 @@
 # Tiến độ Dự án: CRIP Smart Guide
 
 **Cẩm nang Thông minh Cảng Quốc tế Cam Ranh (Cam Ranh International Port - Smart Guide)**  
-Cập nhật lần cuối: `2026-11-25` | Trạng thái tổng thể: **Hoàn thành 30/30 tác vụ (Phase 1 – Phase 5) • Đã nâng cấp Supabase Cloud + Realtime đa thiết bị, giao diện Hành khách theo Tab & sẵn sàng Deploy Vercel**
+Cập nhật lần cuối: `2026-11-25` | Trạng thái tổng thể: **Hoàn thành 30/30 tác vụ (Phase 1 – Phase 5) • Đã nâng cấp Supabase Cloud + Realtime đa thiết bị, giao diện Hành khách 8 Tab, Bảo mật Mã PIN `/admin` & Deploy tự động Vercel**
 
 ---
 
 ## 1. Tổng quan & Nguyên tắc Kiến trúc
 
-Ứng dụng web PWA cục bộ phục vụ hành khách tàu du lịch biển quốc tế và nội địa cập Cảng Quốc tế Cam Ranh, tuân thủ 5 nguyên tắc cốt lõi trong `.specify/memory/constitution.md` (v1.0.0):
+Ứng dụng web PWA đồng bộ đám mây + ngoại tuyến phục vụ hành khách tàu du lịch biển quốc tế và nội địa cập Cảng Quốc tế Cam Ranh, tuân thủ 5 nguyên tắc cốt lõi trong `.specify/memory/constitution.md` (v1.1.0):
 
-- **100% CMS-Driven & Zero Hardcoding**: Toàn bộ nội dung hiển thị đọc từ hạt giống dữ liệu `src/data/defaultConfig.js` và đồng bộ qua `src/utils/storage.js` (`LocalStorage`), sẵn sàng nâng cấp lên Backend-as-a-Service (như Supabase).
+- **100% CMS-Driven & Zero Hardcoding**: Toàn bộ nội dung hiển thị đọc từ hạt giống dữ liệu `src/data/defaultConfig.js` / `crip-config.json` và đồng bộ qua `src/utils/storage.js` với **Supabase Cloud (`app_config`, `id = 1`) + Realtime** kèm cache `LocalStorage` dự phòng ngoại tuyến.
 - **Mobile-First & Offline PWA**: Tối ưu cho màn hình di động (360px–430px), tích hợp Web App Manifest và Service Worker Cache-First hoạt động khi mất kết nối mạng.
 - **Đa ngôn ngữ tức thì (VI / EN / ZH / KR)**: Chuyển đổi ngay không reload trang, tự động lưu lựa chọn vào `LocalStorage` và fallback sang EN/VI khi thiếu bản dịch.
 - **Nhận diện thương hiệu CRIP**: Xanh Hải Quân (`#0A2540`), Xanh Ngọc Cam Ranh (`#00A896`), Nền sáng chống chói (`#F8FAFC`), Đỏ Cam Khẩn cấp (`#E63946`), font `Inter` & `Noto Sans` (body tối thiểu `16px`).
-- **Vận hành độc lập cục bộ (Local-First)**: React 18 + Vite 6 + Tailwind CSS 3 + React Router 6 + Lucide React.
+- **Vận hành Đồng bộ Từ xa & Khả chuyển Đa máy**: React 18 + Vite 6 + Tailwind CSS 3 + React Router 6 + Lucide React + `@supabase/supabase-js`, đồng bộ qua GitHub + Supabase + Vercel.
 
 ---
 
@@ -105,19 +105,22 @@ CRIP-Smart-Guide/
 │   │   └── defaultConfig.js       # Hạt giống dữ liệu gốc 100% CMS
 │   ├── utils/
 │   │   ├── storage.js             # Supabase (app_config) + Realtime + LocalStorage fallback & JSON I/O
+│   │   ├── adminAuth.js           # Xác thực Mã PIN (SHA-256 + fallback JS), phiên 8h & khóa tạm 30s/5 lần
 │   │   ├── speech.js              # Phát âm tiếng Việt (Web Speech API)
 │   │   └── currency.js            # Quy đổi tiền tệ ngoại tuyến
 │   ├── pages/
 │   │   ├── PassengerPage.jsx      # Giao diện Hành khách (/) hiển thị theo 8 Tab chức năng
-│   │   └── AdminPage.jsx          # Giao diện Quản trị (/admin) kèm trạng thái Supabase Realtime
+│   │   └── AdminPage.jsx          # Giao diện Quản trị (/admin) kèm cổng PIN, Khóa nhanh & trạng thái Realtime
 │   └── components/
 │       ├── common/                # Header, BottomBar, EmergencyModal
 │       ├── passenger/             # PassengerTabs, ShipStatusCard, WifiBanner, LogisticsFlow,
 │       │                          # TerminalMap, ItineraryList, PhraseCards, CurrencyCalc,
 │       │                          # SafetySosPanel, FeedbackForm
-│       └── admin/                 # AdminTabs, Tab1Ship .. Tab8DataOps
+│       └── admin/                 # AdminPinGate, AdminTabs, Tab1Ship .. Tab8DataOps
 ├── crip-config.json               # Tệp cấu hình JSON sao lưu mẫu
 ├── vercel.json                    # Cấu hình SPA rewrite (/(.*) -> /index.html) cho Vercel
+├── .env.example                   # Mẫu biến môi trường tùy chọn cho Supabase
+├── README.md                      # Hướng dẫn khởi chạy & đồng bộ đa máy
 ├── index.html
 ├── package.json
 ├── vite.config.js
@@ -167,7 +170,7 @@ npm run preview
   - Chuyển nốt dữ liệu **Khảo sát hành khách (`feedbacks`)** từ `LocalStorage` cục bộ lên đồng bộ **Supabase Cloud + Realtime** (`app_config id = 1`), bảo đảm 100% dữ liệu (Cấu hình + Báo cáo An toàn + Khảo sát) đồng bộ mọi máy.
   - Cập nhật Hiến pháp dự án `.specify/memory/constitution.md` lên **v1.1.0** phản ánh kiến trúc Remote-Synced (GitHub + Supabase + Vercel + Offline PWA).
   - Bổ sung `README.md` và `.env.example` hướng dẫn quy trình `git clone` / `git pull` / `git push` để làm việc liền mạch trên nhiều máy tính.
-- **Cài đặt Mã PIN truy cập hệ thống quản trị (`/admin`)**:
+- **Cài đặt Mã PIN truy cập hệ thống quản trị (`/admin`) (`22927fd`)**:
   - Xây dựng tầng xác thực `src/utils/adminAuth.js` (băm SHA-256 có salt kèm fallback thuần JS cho mạng LAN/HTTP, không lưu plaintext PIN) và màn hình khóa `src/components/admin/AdminPinGate.jsx` (bàn phím số cảm ứng + hỗ trợ gõ phím vật lý).
   - Ghi nhớ phiên quản trị **8 giờ** trên thiết bị (`LocalStorage`), tự động thu hồi phiên trên các thiết bị khác khi đổi PIN qua Supabase Realtime, tích hợp nút **Khóa nhanh** trên Header của `AdminPage.jsx`, và khóa tạm **30 giây** khi nhập sai **5 lần liên tiếp**.
   - Bổ sung mục **8.2 Bảo mật & Đổi mã PIN quản trị** trong `Tab8DataOps.jsx` (cho phép đổi PIN 4–8 chữ số đồng bộ Supabase Cloud) và giữ nguyên mã PIN khi khôi phục dữ liệu mặc định hoặc nhập file backup cũ.

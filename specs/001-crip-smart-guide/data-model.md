@@ -3,12 +3,13 @@
 **Feature**: `specs/001-crip-smart-guide`
 **Created**: 2026-11-24
 
-Tài liệu này định nghĩa cấu trúc dữ liệu toàn diện của `defaultConfig.js` và đối tượng cấu hình lưu trong `LocalStorage` (khóa lưu trữ: `CRIP_CONFIG_V1`).
+Tài liệu này định nghĩa cấu trúc dữ liệu toàn diện của `defaultConfig.js` và đối tượng cấu hình đồng bộ qua **Supabase Cloud (`public.app_config`, `id = 1`, cột `data`)** kèm cache `LocalStorage` (khóa lưu trữ: `CRIP_CONFIG_V1`).
 
 ## 1. Cấu trúc Tổng thể Cấu hình (Root Config Object)
 
 ```javascript
 {
+  adminAuth: { ... },         // Bảo mật mã PIN /admin (pinHash SHA-256, pinLength, updatedAt)
   ship: { ... },              // Thông tin chuyến tàu & All Aboard
   emergencyAlert: { ... },    // Biểu ngữ cảnh báo khẩn cấp (nếu có)
   wifi: { ... },              // Cấu hình Wi-Fi nhà ga cảng
@@ -20,6 +21,8 @@ Tài liệu này định nghĩa cấu trúc dữ liệu toàn diện của `defa
   currencyRates: { ... },     // Tỷ giá quy đổi ngoại tệ
   emergencyContacts: [ ... ], // Danh bạ SOS
   returnPortCard: { ... },    // Thẻ khổ lớn "Đưa tôi về Cảng"
+  safetyReports: [ ... ],     // Báo cáo an toàn hiện trường (Ảnh + GPS) đồng bộ Realtime
+  feedbacks: [ ... ],         // Khảo sát trải nghiệm hành khách đồng bộ Realtime
   dictionary: { ... }         // Từ điển nhãn giao diện (VI, EN, ZH, KR)
 }
 ```
@@ -517,3 +520,15 @@ emergencyContacts: [
 
 ### 2.8 Từ điển Nhãn Giao diện Đa ngôn ngữ (`dictionary`)
 Gồm hơn 30 cặp key-value tương ứng cho 4 ngôn ngữ (VI, EN, ZH, KR) hỗ trợ hiển thị toàn bộ tiêu đề tab, nhãn nút bấm, cảnh báo và thông điệp.
+
+### 2.9 Xác thực Mã PIN Quản trị (`adminAuth`)
+Không lưu mã PIN dạng chữ rõ; chỉ lưu chuỗi băm SHA-256 có salt (`CRIP_ADMIN_PIN_V1::<pin>`) và độ dài PIN (4–8 chữ số):
+```javascript
+adminAuth: {
+  pinHash: "<sha256-hex-digest>", // Đồng bộ qua Supabase app_config (id = 1)
+  pinLength: 6,                   // Số chữ số hiển thị trên màn hình khóa AdminPinGate
+  updatedAt: null                 // ISO timestamp lần đổi PIN gần nhất
+}
+```
+- Phiên đăng nhập thiết bị được lưu cục bộ tại `LocalStorage` (`CRIP_ADMIN_SESSION_V1`, hiệu lực **8 giờ**, gắn kèm `pinHash` để tự thu hồi khi đổi PIN từ thiết bị khác).
+- Trạng thái chống dò mã lưu tại `LocalStorage` (`CRIP_ADMIN_LOCKOUT_V1`, tạm khóa **30 giây** sau **5 lần** nhập sai liên tiếp).
