@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 650" width="100%" height="100%">
+  <defs>
+    <linearGradient id="seaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E0F2FE" />
+      <stop offset="100%" stop-color="#BAE6FD" />
+    </linearGradient>
+    <linearGradient id="terminalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F1F5F9" />
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#E2E8F0" stroke-width="1" />
+    </pattern>
+  </defs>
+
+  <!-- Background / Sea Area -->
+  <rect width="1000" height="650" fill="url(#seaGrad)" />
+  <rect width="1000" height="650" fill="url(#grid)" opacity="0.6" />
+
+  <!-- Pier / Berth 01 Jetty -->
+  <path d="M 50 150 L 250 150 L 250 280 L 50 280 Z" fill="#0A2540" rx="12" />
+  <text x="150" y="210" font-family="'Inter', sans-serif" font-weight="800" font-size="20" fill="#FFFFFF" text-anchor="middle">CẦU BẾN 01</text>
+  <text x="150" y="235" font-family="'Inter', sans-serif" font-weight="500" font-size="13" fill="#38BDF8" text-anchor="middle">CRUISE SHIP BERTH</text>
+
+  <!-- Cruise Ship Silhouette -->
+  <path d="M 20 80 L 220 80 Q 270 80 280 130 L 20 130 Z" fill="#FFFFFF" stroke="#0A2540" stroke-width="3" />
+  <rect x="50" y="50" width="120" height="30" fill="#F8FAFC" stroke="#0A2540" stroke-width="2" rx="4" />
+  <text x="120" y="110" font-family="'Inter', sans-serif" font-weight="700" font-size="13" fill="#0A2540">SPECTRUM OF THE SEAS</text>
+
+  <!-- Covered Walkway to Terminal -->
+  <path d="M 250 200 L 380 200 L 380 320 L 250 320 Z" fill="#94A3B8" opacity="0.4" stroke="#64748B" stroke-dasharray="6,6" stroke-width="2" />
+  <text x="315" y="265" font-family="'Inter', sans-serif" font-weight="600" font-size="12" fill="#334155" text-anchor="middle">Lối đi bộ có mái che</text>
+
+  <!-- Main Passenger Terminal Building -->
+  <rect x="360" y="140" width="460" height="340" rx="20" fill="url(#terminalGrad)" stroke="#0A2540" stroke-width="4" filter="drop-shadow(0 10px 15px rgba(0,0,0,0.08))" />
+  
+  <!-- Terminal Header / Roof line -->
+  <path d="M 360 140 L 820 140 L 820 190 L 360 190 Z" fill="#0A2540" rx="8" />
+  <text x="590" y="172" font-family="'Inter', sans-serif" font-weight="800" font-size="18" fill="#FFFFFF" text-anchor="middle">NHÀ GA HÀNH KHÁCH QUỐC TẾ (CRIP TERMINAL)</text>
+
+  <!-- Zones inside terminal -->
+  <!-- Zone: Currency & Telecom (Left Hall) -->
+  <rect x="390" y="210" width="180" height="110" rx="12" fill="#E6FFFA" stroke="#00A896" stroke-width="2" />
+  <text x="480" y="240" font-family="'Inter', sans-serif" font-weight="700" font-size="14" fill="#008577" text-anchor="middle">KHU DỊCH VỤ TIỀN TỆ &amp; SIM</text>
+  <text x="480" y="260" font-family="'Inter', sans-serif" font-size="11" fill="#475569" text-anchor="middle">ATM • Đổi ngoại tệ • 4G SIM</text>
+
+  <!-- Zone: Medical & Support (Right Top) -->
+  <rect x="610" y="210" width="180" height="80" rx="12" fill="#FEE2E2" stroke="#E63946" stroke-width="2" />
+  <text x="700" y="245" font-family="'Inter', sans-serif" font-weight="700" font-size="13" fill="#C82333" text-anchor="middle">Y TẾ &amp; AN NINH</text>
+  <text x="700" y="265" font-family="'Inter', sans-serif" font-size="11" fill="#475569" text-anchor="middle">Cấp cứu • Trực ban 24/7</text>
+
+  <!-- Zone: Duty Free & Shopping (Center) -->
+  <rect x="390" y="340" width="240" height="110" rx="12" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2" />
+  <text x="510" y="380" font-family="'Inter', sans-serif" font-weight="700" font-size="14" fill="#B45309" text-anchor="middle">CỬA HÀNG MIỄN THUẾ &amp; QUÀ TẶNG</text>
+  <text x="510" y="405" font-family="'Inter', sans-serif" font-size="11" fill="#475569" text-anchor="middle">Trầm hương • Cà phê • Yến sào</text>
+
+  <!-- Zone: Restrooms (WC) (Right Bottom) -->
+  <rect x="660" y="310" width="130" height="140" rx="12" fill="#F1F5F9" stroke="#64748B" stroke-width="2" />
+  <text x="725" y="360" font-family="'Inter', sans-serif" font-weight="700" font-size="14" fill="#334155" text-anchor="middle">NHÀ VỆ SINH</text>
+  <text x="725" y="385" font-family="'Inter', sans-serif" font-size="12" fill="#64748B" text-anchor="middle">WC Nam / Nữ</text>
+  <text x="725" y="405" font-family="'Inter', sans-serif" font-size="11" fill="#00A896" text-anchor="middle">Phòng thay tã em bé</text>
+
+  <!-- Exit & Shuttle Bus Pick-up Station -->
+  <rect x="390" y="500" width="200" height="90" rx="14" fill="#00A896" />
+  <text x="490" y="538" font-family="'Inter', sans-serif" font-weight="800" font-size="15" fill="#FFFFFF" text-anchor="middle">TRẠM SHUTTLE BUS</text>
+  <text x="490" y="560" font-family="'Inter', sans-serif" font-weight="600" font-size="12" fill="#E6FFFA" text-anchor="middle">Ra cổng cảng (Miễn phí • 15p)</text>
+
+  <!-- Tour Bus Parking Area (Right Outside) -->
+  <rect x="630" y="500" width="220" height="90" rx="14" fill="#0A2540" />
+  <text x="740" y="538" font-family="'Inter', sans-serif" font-weight="800" font-size="14" fill="#FFFFFF" text-anchor="middle">BÃI ĐỖ XE BUÝT TOUR</text>
+  <text x="740" y="560" font-family="'Inter', sans-serif" font-weight="500" font-size="12" fill="#93C5FD" text-anchor="middle">Dành cho khách đi tour hãng tàu</text>
+
+  <!-- Taxi Stand & Security Gate 2 Arrow -->
+  <path d="M 490 595 L 490 635 L 530 635" fill="none" stroke="#00A896" stroke-width="4" stroke-dasharray="6,4" marker-end="url(#arrow)" />
+  <text x="560" y="635" font-family="'Inter', sans-serif" font-weight="700" font-size="13" fill="#0A2540">Đường ra Cổng Kiểm Soát số 2 &amp; Đón Taxi ➔</text>
+</svg>

@@ -1,0 +1,18 @@
+{
+  "name": "CRIP Smart Guide - Cảng Quốc tế Cam Ranh",
+  "short_name": "CRIP Guide",
+  "description": "Cẩm nang thông minh Cảng Quốc tế Cam Ranh dành cho hành khách tàu du lịch biển",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#0A2540",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/crip-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
